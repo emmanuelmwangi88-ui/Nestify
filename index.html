@@ -1,515 +1,132 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Nestify — Find Your Perfect Home Across Kenya</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nestify Privé — Luxury homes, hotels and exceptional stays in Kenya</title>
+<meta name="description" content="Discover luxury homes, villas, penthouses, boutique hotels, resorts and exceptional stays across Kenya."/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231e4d3a'/%3E%3Cpath d='M16 7 6 15h3v10h14V15h3L16 7Z' fill='%23fff'/%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/css/style.css"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-
-
-<div class="toast" id="toast"></div>
-
-<!-- MOBILE NAV -->
-<div class="mobile-nav" id="mobileNav">
-  <div class="mobile-nav-header">
-    <div class="logo"><div class="logo-dot"></div>Nestify</div>
-    <button onclick="toggleMobileNav()" style="background:none;border:none;font-size:22px;cursor:pointer">✕</button>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<header class="topbar">
+  <a class="brand" href="#top" aria-label="Nestify home"><span class="brand-mark">N</span><span>Nestify</span></a>
+  <nav class="desktop-nav" aria-label="Main navigation">
+    <a href="#discover">Search</a><a href="#properties">All properties</a><a href="#stays">Short stays</a><a href="#guide">Renter guide</a><a href="#planner">Mortgage planner</a><a href="#concierge">Concierge</a>
+  </nav>
+  <div class="top-actions">
+    <button class="text-btn" onclick="openSaved()">♡ <span>Saved</span><b id="savedCount">0</b></button>
+    <a class="agent-btn" href="agent.html">Agent login <span>↗</span></a>
+    <button class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
   </div>
-  <div class="mobile-nav-links">
-    <a onclick="scrollTo('listings');toggleMobileNav()">Browse Listings</a>
-    <a onclick="scrollTo('calculator');toggleMobileNav()">Mortgage Calculator</a>
-    <a onclick="scrollTo('neighbourhoods');toggleMobileNav()">Neighbourhoods</a>
-    <a onclick="scrollTo('amenities');toggleMobileNav()">Amenities</a>
-    <a onclick="scrollTo('how');toggleMobileNav()">How It Works</a>
-  </div>
+</header>
+<div id="mobileMenu" class="mobile-menu">
+  <a href="#discover" onclick="toggleMenu()">Search</a><a href="#properties" onclick="toggleMenu()">All properties</a><a href="#stays" onclick="toggleMenu()">Short stays</a><a href="#guide" onclick="toggleMenu()">Renter guide</a><a href="#planner" onclick="toggleMenu()">Mortgage planner</a><a href="#concierge" onclick="toggleMenu()">Concierge</a><a class="agent-btn" href="agent.html">Agent login ↗</a>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modal" onclick="handleModalClick(event)">
-  <div class="modal" id="modalContent">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div id="modalInner"></div>
-  </div>
-</div>
-
-<div class="page">
-
-<!-- ── NAVBAR ── -->
-<nav>
-  <div class="nav-inner">
-    <div class="logo"><div class="logo-dot"></div>Nestify</div>
-    <div class="nav-links">
-      <a onclick="document.getElementById('listings').scrollIntoView({behavior:'smooth'})">Browse</a>
-      <a onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">Calculator</a>
-      <a onclick="document.getElementById('neighbourhoods').scrollIntoView({behavior:'smooth'})">Areas</a>
-      <a onclick="document.getElementById('amenities').scrollIntoView({behavior:'smooth'})">Amenities</a>
-      <a onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">How it works</a>
-    </div>
-    <div class="nav-right">
-      <button class="btn-outline" onclick="showToast('Your saved listings will appear here!')">
-        ♡ Saved <span class="saved-badge" id="savedCount">0</span>
-      </button>
-      <button class="btn-primary" onclick="showToast('List your property — coming soon!')">List a property</button>
-      <div class="hamburger" onclick="toggleMobileNav()">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-  </div>
-</nav>
-
-<!-- ── HERO ── -->
+<main id="top">
 <section class="hero">
-  <div class="hero-left">
-    <div class="hero-eyebrow">🇰🇪 Kenya's Premier Property Platform</div>
-    <h1>Find Your<br><em>Perfect Home</em><br>in Kenya</h1>
-    <p class="hero-sub">Discover verified properties across all 47 counties and 290+ sub-counties — from Westlands penthouses to Kisumu lakeside retreats, Mombasa beachfronts, Nakuru highlands, Meru hillsides and beyond. Every listing vetted, every detail included.</p>
-    <div class="hero-ctas">
-      <button class="btn-hero-main" onclick="document.getElementById('listings').scrollIntoView({behavior:'smooth'})">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        Browse listings
-      </button>
-      <button class="btn-hero-ghost" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">Mortgage calculator</button>
-    </div>
-    <div class="hero-stats">
-      <div class="hero-stat"><div class="stat-num" id="cu1">0</div><div class="stat-label">Active listings</div></div>
-      <div class="hero-stat"><div class="stat-num" id="cu2">0</div><div class="stat-label">Counties covered</div></div>
-      <div class="hero-stat"><div class="stat-num" id="cu3">0</div><div class="stat-label">Happy tenants</div></div>
-    </div>
+  <div class="hero-copy">
+    <div class="eyebrow"><span></span> Luxury living, distinctly Kenyan</div>
+    <h1>Exceptional places,<br/><em>privately found.</em></h1>
+    <p>Discover a considered collection of luxury residences, private villas, serviced apartments, boutique hotels and remarkable stays—presented with complete media, exact locations and accountable hosts.</p>
+    <div class="hero-proof"><span>✓ Premium homes & hospitality</span><span>✓ Original interior media</span><span>✓ Trusted customer reviews</span></div>
   </div>
-  <div class="hero-right">
-    <!-- Real Nairobi skyline from Unsplash -->
-    <img class="hero-img-main"
-      src="https://images.unsplash.com/photo-1611348586840-ea9872d33411?w=900&q=80&auto=format&fit=crop"
-      alt="Nairobi skyline Kenya" loading="lazy"/>
-    <div class="hero-float-card">
-      <img class="float-img"
-        src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=120&q=80&auto=format&fit=crop"
-        alt="Apartment interior"/>
-      <div class="float-info">
-        <h4>Westlands, Nairobi</h4>
-        <p>2 bed · Furnished · Available now</p>
-      </div>
-      <div class="float-price">KSh 85k</div>
+  <div class="hero-visual">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&auto=format&fit=crop" alt="Contemporary home exterior"/>
+    <div class="visual-note"><span class="pulse"></span><div><b>Explore the full experience</b><small>Demo homes are always clearly labelled</small></div></div>
+  </div>
+  <div class="search-panel search-panel-v2" id="discover">
+    <div class="search-topline">
+      <div class="mode-tabs" role="tablist"><button class="mode-tab active" data-mode="rent" onclick="setMode('rent')"><i>⌂</i> Rent a home</button><button class="mode-tab" data-mode="stay" onclick="setMode('stay')"><i>◇</i> Book a stay</button></div>
+      <button class="clear-search" onclick="clearSearch()">Clear all</button>
     </div>
-    <div class="hero-badge-card">🌟 <span>4,200+</span> verified listings this month</div>
+    <div class="search-fields search-fields-v2">
+      <label class="search-field location-search"><i>⌖</i><span><b>Area or keyword</b><input id="locationFilter" type="search" placeholder="Westlands, beach, furnished…" onkeydown="if(event.key==='Enter')applyFilters()"/></span></label>
+      <label class="search-field"><i>▾</i><span><b>County</b><select id="countyFilter"><option value="">All 47 counties</option></select></span></label>
+      <label class="search-field"><i>⌂</i><span><b>Property type</b><select id="typeFilter"><option value="">Any property</option><option>Apartment</option><option>Luxury Apartment</option><option>Penthouse</option><option>House</option><option>Villa</option><option>Townhouse</option><option>Serviced Apartment</option><option>Boutique Hotel</option><option>Resort</option><option>Lodge</option><option>Studio</option><option>Cottage</option><option>Bungalow</option><option>Maisonette</option></select></span></label>
+      <label class="search-field rent-field"><i>◉</i><span><b>Monthly budget</b><select id="budgetFilter"><option value="">Any budget</option><option value="30000">Up to KSh 30k</option><option value="60000">Up to KSh 60k</option><option value="100000">Up to KSh 100k</option><option value="200000">Up to KSh 200k</option><option value="500000">Up to KSh 500k</option></select></span></label>
+      <label class="search-field rent-field"><i>▦</i><span><b>Bedrooms</b><select id="bedFilter"><option value="">Any beds</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option></select></span></label>
+      <label class="search-field stay-field hidden"><i>↘</i><span><b>Check in</b><input id="searchCheckin" type="date"/></span></label>
+      <label class="search-field stay-field hidden"><i>↗</i><span><b>Check out</b><input id="searchCheckout" type="date"/></span></label>
+      <label class="search-field stay-field hidden"><i>◉</i><span><b>Nightly budget</b><select id="nightBudgetFilter"><option value="">Any budget</option><option value="10000">Up to KSh 10k</option><option value="20000">Up to KSh 20k</option><option value="30000">Up to KSh 30k</option><option value="50000">Up to KSh 50k</option></select></span></label><label class="search-field stay-field hidden"><i>○</i><span><b>Guests</b><select id="guestFilter"><option value="">Any guests</option><option value="1">1</option><option value="2">2</option><option value="4">4</option><option value="6">6+</option></select></span></label>
+      <button class="search-btn" onclick="applyFilters();document.getElementById('properties').scrollIntoView({behavior:'smooth'})"><span>Search properties</span><b>→</b></button>
+    </div>
+    <div class="quick-filters"><span>Popular</span><button onclick="quickFilter('Nairobi')">Nairobi</button><button onclick="quickFilter('Mombasa')">Mombasa</button><button onclick="quickAmenity('Furnished')">Furnished</button><button onclick="quickAmenity('Pet friendly')">Pet friendly</button><button onclick="setMode('stay')">BnBs & stays</button></div>
   </div>
 </section>
 
-<!-- ── SEARCH ── -->
-<div class="search-wrap" id="listings">
-  <div class="container">
-    <div class="search-bar">
-      <div class="sf">
-        <label>Location / Area / County</label>
-        <input type="text" id="searchInput" placeholder="Westlands, Nyali, Kisumu, Nakuru, Eldoret…" oninput="filterListings()"/>
-      </div>
-      <div class="sf">
-        <label>Property type</label>
-        <select id="typeFilter" onchange="filterListings()">
-          <option value="">Any type</option>
-          <option>Apartment</option>
-          <option>House</option>
-          <option>Studio</option>
-          <option>Villa</option>
-          <option>Townhouse</option>
-          <option>Beachfront</option>
-          <option>Cottage</option>
-          <option>Bungalow</option>
-          <option>Maisonette</option>
-        </select>
-      </div>
-      <div class="sf">
-        <label>Max budget / month</label>
-        <select id="priceFilter" onchange="filterListings()">
-          <option value="">No limit</option>
-          <option value="15000">Under KSh 15k</option>
-          <option value="30000">Under KSh 30k</option>
-          <option value="60000">Under KSh 60k</option>
-          <option value="100000">Under KSh 100k</option>
-          <option value="200000">Under KSh 200k</option>
-          <option value="400000">Under KSh 400k</option>
-        </select>
-      </div>
-      <div class="sf">
-        <label>Min bedrooms</label>
-        <select id="bedsFilter" onchange="filterListings()">
-          <option value="0">Any</option>
-          <option value="1">1+</option>
-          <option value="2">2+</option>
-          <option value="3">3+</option>
-          <option value="4">4+</option>
-        </select>
-      </div>
-      <button class="btn-search-main" onclick="filterListings()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        Search
-      </button>
-    </div>
-    <div class="quick-areas">
-      <span style="font-size:12px;font-weight:600;color:var(--ink-muted);align-self:center;white-space:nowrap">Popular:</span>
-      <button class="area-pill" onclick="quickSearch('Westlands')">Westlands</button>
-      <button class="area-pill" onclick="quickSearch('Karen')">Karen</button>
-      <button class="area-pill" onclick="quickSearch('Kilimani')">Kilimani</button>
-      <button class="area-pill" onclick="quickSearch('Nyali')">Nyali</button>
-      <button class="area-pill" onclick="quickSearch('Kisumu')">Kisumu</button>
-      <button class="area-pill" onclick="quickSearch('Nakuru')">Nakuru</button>
-      <button class="area-pill" onclick="quickSearch('Eldoret')">Eldoret</button>
-      <button class="area-pill" onclick="quickSearch('Thika')">Thika</button>
-      <button class="area-pill" onclick="quickSearch('Meru')">Meru</button>
-      <button class="area-pill" onclick="quickSearch('Diani')">Diani</button>
-      <button class="area-pill" onclick="quickSearch('Lamu')">Lamu</button>
-      <button class="area-pill" onclick="quickSearch('Kitengela')">Kitengela</button>
-    </div>
-  </div>
-</div>
+<section class="truth-strip">
+  <div><strong id="liveCount">0</strong><span>approved live listings</span></div>
+  <div><strong id="countyCount">0</strong><span>counties with live inventory</span></div>
+  <div><strong>47</strong><span>counties searchable</span></div>
+  <p id="dataMode"><span></span> Checking live data source…</p>
+</section>
 
-<!-- ── COUNTY EXPLORER ── -->
-<section class="county-section">
-  <div class="container">
-    <div class="section-label">Explore by County</div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem">
-      <div class="section-title" style="margin-bottom:0">47 counties, <em>one platform</em></div>
-      <div class="county-scroll-nav">
-        <button class="scroll-btn" onclick="scrollCounties(-1)">←</button>
-        <button class="scroll-btn" onclick="scrollCounties(1)">→</button>
-      </div>
-    </div>
-    <div style="margin-top:1.5rem" class="county-scroll" id="countyScroll"></div>
+<section class="signature-section"><div class="section-head"><div><span class="kicker">The Privé edit</span><h2>Signature homes</h2><p class="section-deck">An editorial preview of statement residences, coastal villas and exceptional private homes.</p></div><button class="signature-all" onclick="document.getElementById('properties').scrollIntoView({behavior:'smooth'})">View the full collection →</button></div><div id="signatureGrid" class="signature-grid"></div></section>
+
+<section class="listings-section" id="properties">
+  <div class="section-head property-head"><div><span class="kicker" id="listingKicker">Long-term rentals</span><h2 id="listingHeading">Explore every property</h2><p class="section-deck">Open any card for a full preview, interior gallery, exact map, amenities, source information and a direct request form.</p></div><div class="view-tools"><button class="tool active" data-sort="new" onclick="setSort('new',this)">Newest</button><button class="tool" data-sort="low" onclick="setSort('low',this)">Lowest price</button><button class="tool" data-sort="high" onclick="setSort('high',this)">Highest price</button><span class="tool-divider"></span><button class="tool view-switch active" onclick="setListingView('grid',this)" aria-label="Grid view">▦</button><button class="tool view-switch" onclick="setListingView('list',this)" aria-label="List view">☷</button></div></div>
+  <div class="result-bar"><div id="filterSummary" class="filter-summary"></div><div class="result-legend"><span class="demo-dot"></span> Demo previews are examples, never live inventory</div></div>
+  <div class="amenity-filter-bar"><span>Refine by</span><button class="active" onclick="filterAmenity('',this)">All</button><button onclick="filterAmenity('Furnished',this)">Furnished</button><button onclick="filterAmenity('Parking',this)">Parking</button><button onclick="filterAmenity('Pet friendly',this)">Pet friendly</button><button onclick="filterAmenity('Swimming pool',this)">Pool</button><button onclick="filterAmenity('Wi-Fi / fibre',this)">Wi-Fi</button><button onclick="filterAmenity('Garden',this)">Garden</button></div>
+  <div id="listingGrid" class="listing-grid" aria-live="polite"></div>
+  <div id="loadMoreWrap" class="load-more-wrap hidden"><button onclick="loadMoreProperties()"><span>Load more properties</span><small id="loadMoreCount"></small></button></div>
+</section>
+
+<section class="stay-callout" id="stays">
+  <div class="stay-photo"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1000&q=85&auto=format&fit=crop" alt="Bright furnished interior"/></div>
+  <div class="stay-copy"><span class="kicker">Nestify Stays</span><h2>Short stays, with the same proof.</h2><p>Browse agent-managed BnBs with real media, exact locations, nightly pricing, guest limits and availability requests. Booking requests go directly to the responsible agent.</p><button class="dark-btn" onclick="setMode('stay');document.getElementById('discover').scrollIntoView({behavior:'smooth'})">Explore short stays →</button></div>
+</section>
+
+<section class="discovery-section">
+  <div class="section-head"><div><span class="kicker">Find your fit</span><h2>Start with what matters.</h2></div><p>Jump into useful property collections. Every collection applies a transparent filter to the full preview gallery.</p></div>
+  <div class="collection-grid">
+    <button onclick="collectionFilter('rent','Apartment','')"><span>01</span><b>City apartments</b><small>Compact, connected and easy to compare</small><i>→</i></button>
+    <button onclick="collectionFilter('rent','House','Pet friendly')"><span>02</span><b>Family homes</b><small>More bedrooms, outdoor space and pets</small><i>→</i></button>
+    <button onclick="collectionFilter('stay','','')"><span>03</span><b>Weekend stays</b><small>BnBs with dates, guests and nightly prices</small><i>→</i></button>
+    <button onclick="collectionFilter('stay','Villa','Swimming pool')"><span>04</span><b>Poolside escapes</b><small>Villa previews made for groups and breaks</small><i>→</i></button>
   </div>
 </section>
 
-<!-- ── FILTER + LISTINGS ── -->
-<section class="filter-section">
-  <div class="container">
-    <div class="filter-row">
-      <button class="chip on" data-f="all" onclick="setChip(this,'all')">All listings</button>
-      <button class="chip" data-f="available" onclick="setChip(this,'available')">🟢 Available now</button>
-      <button class="chip" data-f="pet" onclick="setChip(this,'pet')">🐾 Pet friendly</button>
-      <button class="chip" data-f="parking" onclick="setChip(this,'parking')">🚗 Parking</button>
-      <button class="chip" data-f="furnished" onclick="setChip(this,'furnished')">🛋️ Furnished</button>
-      <button class="chip" data-f="pool" onclick="setChip(this,'pool')">🏊 Pool</button>
-      <button class="chip" data-f="new" onclick="setChip(this,'new')">✨ New listings</button>
-      <button class="chip" data-f="beachfront" onclick="setChip(this,'beachfront')">🌊 Beachfront</button>
-      <button class="chip" data-f="borehole" onclick="setChip(this,'borehole')">💧 Borehole</button>
-      <button class="chip" data-f="solar" onclick="setChip(this,'solar')">☀️ Solar</button>
-      <select class="sort-sel" id="sortSelect" onchange="filterListings()">
-        <option value="default">Sort: Default</option>
-        <option value="price_asc">Price: Low → High</option>
-        <option value="price_desc">Price: High → Low</option>
-        <option value="size_desc">Size: Largest first</option>
-        <option value="rating">Top rated</option>
-      </select>
-    </div>
-  </div>
+<section class="luxury-planner" id="planner"><div class="planner-copy"><span class="kicker light">Purchase planning</span><h2>See the monthly shape of a luxury home.</h2><p>Explore an indicative mortgage repayment before speaking with a licensed lender. This calculator is educational—not financial advice or an offer of credit.</p><div class="planner-fields"><label>Property value <span id="plannerValueLabel">KSh 40,000,000</span><input id="plannerValue" type="range" min="5000000" max="250000000" step="1000000" value="40000000" oninput="updatePlanner()"/></label><label>Deposit <span id="plannerDepositLabel">20%</span><input id="plannerDeposit" type="range" min="10" max="60" step="5" value="20" oninput="updatePlanner()"/></label><div class="planner-two"><label>Interest rate<input id="plannerRate" type="number" min="1" max="30" step="0.1" value="13" oninput="updatePlanner()"/></label><label>Term (years)<input id="plannerTerm" type="number" min="1" max="30" value="20" oninput="updatePlanner()"/></label></div></div></div><div class="planner-result"><span>Indicative monthly repayment</span><strong id="plannerMonthly">—</strong><div><p><b id="plannerLoan">—</b>Estimated loan</p><p><b id="plannerCash">—</b>Cash deposit</p></div><small>Excludes insurance, valuation, legal costs, taxes, fees and rate changes.</small></div></section>
+
+<section class="renter-guide" id="guide">
+  <div class="guide-copy"><span class="kicker light">A safer search</span><h2>From first preview to front door.</h2><p>Nestify keeps source and freshness visible, but every renter should still verify the home, agent and agreement independently.</p><button onclick="openSafety()">Open the renter safety checklist →</button></div>
+  <div class="guide-steps"><article><b>1</b><div><h3>Preview the evidence</h3><p>Review the complete interior gallery, property facts, update date and mapped location.</p></div></article><article><b>2</b><div><h3>Ask direct questions</h3><p>Use the enquiry form to confirm availability, total move-in cost, utilities and viewing times.</p></div></article><article><b>3</b><div><h3>Verify before payment</h3><p>View the home, confirm authority to let it, and read the agreement before sending funds.</p></div></article></div>
 </section>
 
-<section class="listings-section">
-  <div class="container">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-1px">
-        Featured <em style="font-style:italic;color:var(--sage)">listings</em>
-      </div>
-      <div class="results-meta"><strong id="resultCount">0</strong> properties found</div>
-    </div>
-    <div class="grid" id="listingsGrid"></div>
-    <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
-      <button class="btn-load-more" onclick="loadMore()">Load more properties</button>
-    </div>
-  </div>
+<section id="recentlySection" class="recently-section hidden"><div class="section-head"><div><span class="kicker">Pick up where you left off</span><h2>Recently viewed</h2></div><button class="clear-recent" onclick="clearRecentlyViewed()">Clear history</button></div><div id="recentlyGrid" class="recently-grid"></div></section>
+
+<section class="agent-cta">
+  <div><span class="kicker">For property professionals</span><h2>Turn accurate listings into serious conversations.</h2><p>Create one accountable portfolio for rentals and short stays, with maps, interior media, bookings, enquiries and status notifications.</p></div><a href="agent.html">Open the agent workspace <span>↗</span></a>
 </section>
 
-<!-- ── FEATURED BANNER ── -->
-<div class="container">
-  <div class="featured-banner" onclick="openModal(6)">
-    <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&q=80&auto=format&fit=crop" alt="Luxury Runda villa Kenya"/>
-    <div class="featured-overlay">
-      <div class="featured-label">Editor's Pick · Runda, Nairobi</div>
-      <div class="featured-title">Embassy-grade <em>luxury</em><br>with private pool</div>
-      <div class="featured-meta">5 beds · 4 baths · 4,200 sqft · Smart home system</div>
-    </div>
-    <div class="featured-price">
-      <div class="fp-label">Starting from</div>
-      <div class="fp-val">KSh 350k<small style="font-size:14px;opacity:.7">/mo</small></div>
-    </div>
-  </div>
-</div>
+<section class="concierge-section" id="concierge"><div class="concierge-art"><span>N</span><small>PRIVÉ CONCIERGE</small></div><div class="concierge-copy"><span class="kicker">Private search</span><h2>Let the right property find you.</h2><p>Share your preferred areas, budget and non-negotiables. The concierge brief creates a structured request you can share with premium agents.</p><button onclick="openConcierge()">Create a private brief →</button></div></section>
 
-<!-- ── HOW IT WORKS ── -->
-<section class="how-section" id="how">
-  <div class="container">
-    <div class="section-label" style="color:rgba(255,255,255,.5)">Simple process</div>
-    <div class="section-title" style="color:#fff;margin-bottom:0">How <em>Nestify</em> works</div>
-    <div class="how-grid">
-      <div class="how-step">
-        <div class="how-num">01</div>
-        <div class="how-title">Search & Filter</div>
-        <div class="how-desc">Use our advanced filters to find properties by county, sub-county, price, beds, amenities and more. Every listing is verified by our local team.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">02</div>
-        <div class="how-title">Contact the Agent</div>
-        <div class="how-desc">Connect directly with verified landlords and agents via M-Pesa chat, WhatsApp or our in-app messaging. No hidden fees or middlemen.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">03</div>
-        <div class="how-title">Move In</div>
-        <div class="how-desc">Sign digitally, pay your deposit via M-Pesa, and collect your keys. Our tenancy support team is on-call 24/7 for any issues.</div>
-      </div>
-    </div>
+<section class="trust-section" id="trust">
+  <div class="trust-intro"><span class="kicker light">Trust by design</span><h2>What “verified” means here.</h2><p>A badge is not a promise by itself. Nestify records who submitted a home, when it changed and where it is—then keeps unapproved submissions off the public marketplace.</p><a href="agent.html">Are you an agent? Join Nestify →</a></div>
+  <div class="trust-steps">
+    <article><b>01</b><div><h3>Identity & agency</h3><p>Agents register under their own account and provide contact and agency details for review.</p></div></article>
+    <article><b>02</b><div><h3>Property evidence</h3><p>Interior images and videos are uploaded by the listing agent and attached to one property record.</p></div></article>
+    <article><b>03</b><div><h3>Location & freshness</h3><p>Coordinates power the public map. Every listing shows when its record was last updated.</p></div></article>
   </div>
 </section>
+</main>
 
-<!-- ── AMENITIES ── -->
-<section class="amenities-section" id="amenities">
-  <div class="container">
-    <div class="section-label">Search smarter</div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem">
-      <div class="section-title" style="margin-bottom:0">By <em>amenity</em></div>
-      <a style="font-size:13px;color:var(--sage);font-weight:600;cursor:pointer" onclick="showToast('Full amenity search coming soon!')">View all →</a>
-    </div>
-    <div class="amenities-grid">
-      <div class="am-card" onclick="setChipByKey('pool')"><div class="am-icon" style="background:rgba(74,143,168,.1)">🏊</div><div class="am-name">Swimming Pool</div><div class="am-count">23 properties</div></div>
-      <div class="am-card" onclick="setChipByKey('parking')"><div class="am-icon" style="background:rgba(201,162,39,.1)">🚗</div><div class="am-name">Secure Parking</div><div class="am-count">62 properties</div></div>
-      <div class="am-card" onclick="setChipByKey('furnished')"><div class="am-icon" style="background:rgba(139,110,78,.1)">🛋️</div><div class="am-name">Fully Furnished</div><div class="am-count">47 properties</div></div>
-      <div class="am-card" onclick="showToast('Filtering by 24hr security…')"><div class="am-icon" style="background:rgba(192,83,58,.1)">🔒</div><div class="am-name">24hr Security</div><div class="am-count">78 properties</div></div>
-      <div class="am-card" onclick="showToast('Filtering by fibre internet…')"><div class="am-icon" style="background:rgba(74,143,168,.1)">📶</div><div class="am-name">Fibre Internet</div><div class="am-count">55 properties</div></div>
-      <div class="am-card" onclick="showToast('Filtering by gym…')"><div class="am-icon" style="background:rgba(74,103,65,.1)">🏋️</div><div class="am-name">Gym & Fitness</div><div class="am-count">31 properties</div></div>
-      <div class="am-card" onclick="setChipByKey('borehole')"><div class="am-icon" style="background:rgba(74,143,168,.1)">💧</div><div class="am-name">Borehole Water</div><div class="am-count">44 properties</div></div>
-      <div class="am-card" onclick="setChipByKey('solar')"><div class="am-icon" style="background:rgba(201,162,39,.1)">☀️</div><div class="am-name">Solar Power</div><div class="am-count">38 properties</div></div>
-      <div class="am-card" onclick="showToast('Filtering by garden…')"><div class="am-icon" style="background:rgba(74,103,65,.1)">🌿</div><div class="am-name">Garden / Yard</div><div class="am-count">40 properties</div></div>
-      <div class="am-card" onclick="setChipByKey('pet')"><div class="am-icon" style="background:rgba(192,83,58,.1)">🐾</div><div class="am-name">Pet Friendly</div><div class="am-count">29 properties</div></div>
-      <div class="am-card" onclick="showToast('Filtering by generator backup…')"><div class="am-icon" style="background:rgba(201,162,39,.1)">⚡</div><div class="am-name">Generator Backup</div><div class="am-count">51 properties</div></div>
-      <div class="am-card" onclick="setChipByKey('beachfront')"><div class="am-icon" style="background:rgba(74,143,168,.1)">🌊</div><div class="am-name">Beachfront</div><div class="am-count">12 properties</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ── CALCULATOR ── -->
-<div class="container" id="calculator">
-  <div class="calc-section">
-    <div class="calc-title">Mortgage <em>calculator</em></div>
-    <div class="calc-grid">
-      <div class="calc-inputs">
-        <div>
-          <div class="calc-row-label">Property value <span id="loanValDisplay">KSh 8,000</span></div>
-          <input type="range" class="calc-slider" id="loanVal" min="100000" max="800000" step="500000" value="8000000" oninput="updateCalc()"/>
-        </div>
-        <div>
-          <div class="calc-row-label">Down payment <span id="downPayDisplay">20%</span></div>
-          <input type="range" class="calc-slider" id="downPay" min="5" max="50" step="5" value="20" oninput="updateCalc()"/>
-        </div>
-        <div>
-          <div class="calc-row-label">Interest rate (p.a.) <span id="rateDisplay">13%</span></div>
-          <input type="range" class="calc-slider" id="rateSlider" min="8" max="25" step="0.5" value="13" oninput="updateCalc()"/>
-        </div>
-        <div>
-          <div class="calc-row-label">Loan term <span id="termDisplay">20 years</span></div>
-          <input type="range" class="calc-slider" id="termSlider" min="5" max="30" step="1" value="20" oninput="updateCalc()"/>
-        </div>
-        <button class="btn-preapprove" onclick="showToast('Pre-approval feature coming soon! 🏦')">Get pre-approval →</button>
-      </div>
-      <div class="calc-results">
-        <div class="calc-main">
-          <div class="cm-label">Monthly Payment</div>
-          <div class="cm-value" id="monthlyPayment">—</div>
-        </div>
-        <div class="calc-breakdown">
-          <div class="cb-item"><div class="cb-label">Loan amount</div><div class="cb-val" id="loanAmount">—</div></div>
-          <div class="cb-item"><div class="cb-label">Down payment</div><div class="cb-val" id="downPayAmt">—</div></div>
-          <div class="cb-item"><div class="cb-label">Total interest</div><div class="cb-val" id="totalInterest">—</div></div>
-          <div class="cb-item"><div class="cb-label">Total cost</div><div class="cb-val" id="totalCost">—</div></div>
-        </div>
-        <div class="calc-bar-wrap"><div class="calc-bar-fill" id="calcBarFill" style="width:60%"></div></div>
-        <div class="calc-bar-labels">
-          <span>Principal <strong id="principalPct">60%</strong></span>
-          <span>Interest <strong id="interestPct">40%</strong></span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ── NEIGHBOURHOODS ── -->
-<section class="nbr-section" id="neighbourhoods">
-  <div class="container">
-    <div class="section-label">Local insights</div>
-    <div class="section-title">Top <em>neighbourhoods</em></div>
-    <div class="nbr-grid">
-      <div class="nbr-card" onclick="quickSearch('Westlands')">
-        <img class="nbr-img" src="https://images.unsplash.com/photo-1611348586840-ea9872d33411?w=600&q=80&auto=format&fit=crop" alt="Westlands Nairobi"/>
-        <div class="nbr-body">
-          <div class="nbr-name">Westlands</div>
-          <div class="nbr-county">Nairobi County · Westlands Sub-county</div>
-          <div class="nbr-scores">
-            <div class="sb"><div class="sb-label">Transport</div><div class="sb-bg"><div class="sb-fill" style="width:92%"></div></div></div>
-            <div class="sb"><div class="sb-label">Amenities</div><div class="sb-bg"><div class="sb-fill" style="width:95%"></div></div></div>
-            <div class="sb"><div class="sb-label">Safety</div><div class="sb-bg"><div class="sb-fill" style="width:80%"></div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="nbr-card" onclick="quickSearch('Karen')">
-        <img class="nbr-img" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80&auto=format&fit=crop" alt="Karen Nairobi"/>
-        <div class="nbr-body">
-          <div class="nbr-name">Karen</div>
-          <div class="nbr-county">Nairobi County · Langata Sub-county</div>
-          <div class="nbr-scores">
-            <div class="sb"><div class="sb-label">Transport</div><div class="sb-bg"><div class="sb-fill" style="width:70%"></div></div></div>
-            <div class="sb"><div class="sb-label">Amenities</div><div class="sb-bg"><div class="sb-fill" style="width:85%"></div></div></div>
-            <div class="sb"><div class="sb-label">Safety</div><div class="sb-bg"><div class="sb-fill" style="width:95%"></div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="nbr-card" onclick="quickSearch('Nyali')">
-        <img class="nbr-img" src="https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=600&q=80&auto=format&fit=crop" alt="Nyali Mombasa beach"/>
-        <div class="nbr-body">
-          <div class="nbr-name">Nyali</div>
-          <div class="nbr-county">Mombasa County · Nyali Sub-county</div>
-          <div class="nbr-scores">
-            <div class="sb"><div class="sb-label">Transport</div><div class="sb-bg"><div class="sb-fill" style="width:75%"></div></div></div>
-            <div class="sb"><div class="sb-label">Amenities</div><div class="sb-bg"><div class="sb-fill" style="width:80%"></div></div></div>
-            <div class="sb"><div class="sb-label">Nature</div><div class="sb-bg"><div class="sb-fill" style="width:98%"></div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="nbr-card" onclick="quickSearch('Milimani')">
-        <img class="nbr-img" src="https://images.unsplash.com/photo-1504205166486-5d3e16ce49c4?w=600&q=80&auto=format&fit=crop" alt="Kisumu Lake Victoria"/>
-        <div class="nbr-body">
-          <div class="nbr-name">Milimani, Kisumu</div>
-          <div class="nbr-county">Kisumu County · Kisumu East Sub-county</div>
-          <div class="nbr-scores">
-            <div class="sb"><div class="sb-label">Transport</div><div class="sb-bg"><div class="sb-fill" style="width:80%"></div></div></div>
-            <div class="sb"><div class="sb-label">Amenities</div><div class="sb-bg"><div class="sb-fill" style="width:72%"></div></div></div>
-            <div class="sb"><div class="sb-label">Nature</div><div class="sb-bg"><div class="sb-fill" style="width:90%"></div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="nbr-card" onclick="quickSearch('Nakuru')">
-        <img class="nbr-img" src="https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=600&q=80&auto=format&fit=crop" alt="Nakuru Rift Valley"/>
-        <div class="nbr-body">
-          <div class="nbr-name">Milimani, Nakuru</div>
-          <div class="nbr-county">Nakuru County · Nakuru East Sub-county</div>
-          <div class="nbr-scores">
-            <div class="sb"><div class="sb-label">Transport</div><div class="sb-bg"><div class="sb-fill" style="width:78%"></div></div></div>
-            <div class="sb"><div class="sb-label">Amenities</div><div class="sb-bg"><div class="sb-fill" style="width:70%"></div></div></div>
-            <div class="sb"><div class="sb-label">Nature</div><div class="sb-bg"><div class="sb-fill" style="width:95%"></div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="nbr-card" onclick="quickSearch('Diani')">
-        <img class="nbr-img" src="https://images.unsplash.com/photo-1589197331516-4d84b72ebde3?w=600&q=80&auto=format&fit=crop" alt="Diani Beach Kenya"/>
-        <div class="nbr-body">
-          <div class="nbr-name">Diani Beach</div>
-          <div class="nbr-county">Kwale County · Msambweni Sub-county</div>
-          <div class="nbr-scores">
-            <div class="sb"><div class="sb-label">Transport</div><div class="sb-bg"><div class="sb-fill" style="width:60%"></div></div></div>
-            <div class="sb"><div class="sb-label">Amenities</div><div class="sb-bg"><div class="sb-fill" style="width:68%"></div></div></div>
-            <div class="sb"><div class="sb-label">Nature</div><div class="sb-bg"><div class="sb-fill" style="width:100%"></div></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── CTA BANNER ── -->
-<div class="container">
-  <div class="cta-banner">
-    <div>
-      <div class="cta-banner-title">Own a property in Kenya?</div>
-      <div class="cta-banner-sub">List it free on Nestify and reach over 50,000 active house-hunters every month.</div>
-    </div>
-    <button class="btn-cta-white" onclick="showToast('Landlord portal coming soon! 🏠')">List your property →</button>
-  </div>
-</div>
-
-<!-- ── TESTIMONIALS ── -->
-<section class="testi-section">
-  <div class="container">
-    <div class="section-label">Happy tenants</div>
-    <div class="section-title">What <em>people say</em></div>
-    <div class="testi-grid">
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <div class="testi-quote">"Found my apartment in Kilimani in less than 3 days. The listing details were accurate — no hidden surprises when I moved in. Absolutely love it."</div>
-        <div class="testi-avatar">
-          <div class="testi-pic" style="background:var(--sage-pale);display:flex;align-items:center;justify-content:center;font-size:20px">👩🏾</div>
-          <div><div class="testi-name">Amina Odhiambo</div><div class="testi-loc">Kilimani, Nairobi</div></div>
-        </div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <div class="testi-quote">"Relocated from Mombasa to Nakuru for work. Nestify had listings across both counties with accurate pricing. The mortgage calculator saved me hours of research."</div>
-        <div class="testi-avatar">
-          <div class="testi-pic" style="background:var(--earth-pale,#f5e8d8);display:flex;align-items:center;justify-content:center;font-size:20px">👨🏾</div>
-          <div><div class="testi-name">David Kamau</div><div class="testi-loc">Milimani, Nakuru</div></div>
-        </div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-stars">★★★★☆</div>
-        <div class="testi-quote">"The beachfront filter is a game-changer. Found our dream holiday rental in Diani with a private pool. The agent contact feature worked perfectly."</div>
-        <div class="testi-avatar">
-          <div class="testi-pic" style="background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:.8">👩🏽</div>
-          <div><div class="testi-name">Grace Mwangi</div><div class="testi-loc">Diani, Kwale</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── FOOTER ── -->
-<footer class="footer-section">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-logo">Nestify</div>
-        <div class="footer-tagline">Kenya's most trusted property platform, spanning all 47 counties and 290+ sub-counties. Verified listings, transparent pricing, everything you need before you move.</div>
-        <div class="footer-social">
-          <div class="social-btn" onclick="showToast('Follow us on Twitter/X!')">𝕏</div>
-          <div class="social-btn" onclick="showToast('Follow us on Facebook!')">f</div>
-          <div class="social-btn" onclick="showToast('Follow us on Instagram!')">📷</div>
-          <div class="social-btn" onclick="showToast('Join our WhatsApp channel!')">📱</div>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Browse</h4>
-        <a onclick="quickSearch('Apartment')">Apartments</a>
-        <a onclick="quickSearch('House')">Houses</a>
-        <a onclick="quickSearch('Villa')">Villas</a>
-        <a onclick="quickSearch('Studio')">Studios</a>
-        <a onclick="quickSearch('Beachfront')">Beachfront</a>
-        <a onclick="quickSearch('Maisonette')">Maisonettes</a>
-      </div>
-      <div class="footer-col">
-        <h4>Counties</h4>
-        <a onclick="quickSearch('Nairobi')">Nairobi</a>
-        <a onclick="quickSearch('Mombasa')">Mombasa</a>
-        <a onclick="quickSearch('Kisumu')">Kisumu</a>
-        <a onclick="quickSearch('Nakuru')">Nakuru</a>
-        <a onclick="quickSearch('Eldoret')">Eldoret</a>
-        <a onclick="showToast('View all 47 counties coming soon!')">View all 47 →</a>
-      </div>
-      <div class="footer-col">
-        <h4>Company</h4>
-        <a>About us</a>
-        <a>Careers</a>
-        <a onclick="showToast('List your property — coming soon!')">List a property</a>
-        <a>Contact us</a>
-        <a>Privacy policy</a>
-        <a>Terms of use</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2025 Nestify Ltd · Nairobi, Kenya · Reg. No. PVT-2024-KE-00482</span>
-      <span>Built with care for Kenyan renters 🇰🇪</span>
-    </div>
-  </div>
+<footer>
+  <div class="footer-main"><div><a class="brand footer-brand" href="#top"><span class="brand-mark">N</span><span>Nestify</span></a><p>A private marketplace for Kenya’s finest homes, hotels and stays.</p></div><div><b>Explore</b><a href="#discover">Search</a><a href="#properties">All properties</a><a href="#stays">Short stays</a></div><div><b>For agents</b><a href="agent.html">Login or register</a><a href="agent.html#new">Post a property</a><a href="SETUP.md">Platform setup</a></div><div><b>Important</b><a href="#trust">Verification</a><a onclick="openSafety()">Rental safety</a><a href="mailto:hello@nestify.co.ke">Contact</a></div></div>
+  <div class="footer-bottom"><span>© 2026 Nestify Ltd · Kenya</span><span>Never pay before verifying the property and recipient.</span></div>
 </footer>
 
-</div><!-- /page -->
-<script src="/js/script.js"></script>
+<div id="compareBar" class="compare-bar hidden"><div><span>Compare properties</span><b id="compareCount">0 selected</b></div><div id="compareThumbs" class="compare-thumbs"></div><button class="compare-clear" onclick="clearCompare()">Clear</button><button class="compare-open" onclick="openCompare()">Compare now →</button></div>
+
+<div id="modal" class="modal-backdrop" onclick="backdropClose(event)"><div class="modal"><button class="modal-close" onclick="closeModal()" aria-label="Close">×</button><div id="modalBody"></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
