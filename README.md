@@ -7,7 +7,7 @@ A static front end with a production-ready Supabase schema for accountable Kenya
 - `index.html` — public rentals and short stays
 - `agent.html` — agent registration, login and dashboard
 - `SETUP.md` — Supabase and Google Maps configuration
-- `supabase-schema.sql` — database, Storage, triggers and row-level security
+- `supabase/migrations/` — current database changes (apply to your project); `supabase-schema.sql` is a superseded draft
 - `config.js` — browser-safe public configuration
 
 ## What works
@@ -75,6 +75,6 @@ See `SETUP.md` before deployment.
 - M-Pesa STK Push initiated through a Supabase Edge Function
 - Automatic publication after server-confirmed payment
 - Plan limits enforced in PostgreSQL RLS, not just the UI
-- One-time-token customer review invitations
+- Open reviews: anyone can review a live listing (no token), rate-limited and de-duplicated by the `submit-review` function
 
 `AGENT_AGREEMENT.md` must receive Kenyan legal review before production launch.
