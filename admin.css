@@ -16,3 +16,6 @@
 .actions-row{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0 1rem}
 .danger{color:#a32d2d!important;border-color:#e3b8b8!important}
 .report-text{white-space:pre-wrap;background:#f4f6f1;border-radius:12px;padding:.7rem .9rem;margin:.4rem 0}
+
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media (max-width:520px){.row-2{grid-template-columns:1fr}}
