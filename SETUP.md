@@ -1,89 +1,91 @@
-# Nestify production setup
+# Nestify setup
 
-The site works in **Preview Mode** without credentials. Preview accounts and data stay in that browser only and are visibly labelled as demo data.
+Project URL: `https://bpowsaqvxfsvbcdkjcbp.supabase.co` (already set in `config.js`; the anon key there is public by design).
 
-## 1. Create Supabase
+## 1. Database
 
-1. Create a project at https://supabase.com.
-2. Open **SQL Editor** and run `supabase-schema.sql` in full.
-3. In **Authentication → URL Configuration**, add your deployed site URL and local development URL.
-4. In **Project Settings → API**, copy the Project URL and public `anon` key.
-5. Put those two public values in `config.js`. Never expose the service-role key.
+Run these in order in Supabase → SQL Editor (each is safe to run twice):
 
-The SQL creates:
-- agent profiles and roles
-- properties for rentals and short stays
-- property media records
-- enquiries, booking requests and notifications
-- blocked stay dates
-- a private agent-documents bucket
-- a public property-media bucket
-- row-level security policies
-- profile and notification triggers
+1. `supabase/migrations/20261016000000_open_reviews_privacy_payments.sql` (open reviews, privacy, contact flow)
+2. `supabase/migrations/20261017000000_admin_console_and_fixes.sql` (completes anything the first file missed, and adds the admin console functions). It runs as one transaction, so it either applies fully or shows an error and changes nothing.
 
-## 2. Google Maps
+Do not run `supabase-schema.sql` on a project that already has data.
 
-1. In Google Cloud Console, create a browser API key.
-2. Enable **Maps JavaScript API** and **Places API**.
-3. Restrict the key to your production and local HTTP referrers.
-4. Add it to `googleMapsApiKey` in `config.js`.
-
-Without the key, agents can still enter latitude/longitude manually or use browser geolocation. Public approved listings use a keyless Google Maps embed from stored coordinates.
-
-## 3. Approval workflow
-
-New agents and listings are pending by default. Promote a trusted account in Supabase:
+### Super admin
+Make your own account an admin (sign up on `agent.html` first), then open `admin.html`:
 
 ```sql
-update public.profiles
-set role = 'admin', verification_status = 'verified'
-where email = 'you@example.com';
+update public.profiles set role='admin', verification_status='verified' where email='you@example.com';
 ```
 
-Admins may approve listings directly in the Supabase Table Editor by setting `status = 'published'` and `verified_at = now()`. The RLS policies prevent agents from publishing unapproved content in production.
+The admin console lets you verify, reject, suspend and message agents, grant or end plans, suspend or remove listings, handle reports, hide reviews, view all payments, edit the support contact and see an audit log of every change. You can promote other admins from an agent's Manage panel.
 
-## 4. Deploy
+In **Authentication → URL Configuration** add your deployed site URL (and `http://localhost:8000`).
 
-This is a static site. Deploy the folder to Netlify, Vercel, Cloudflare Pages or GitHub Pages. Keep `config.js` browser-safe.
+## 2. M-Pesa Daraja secrets
 
-## Truth and freshness
+You already tested the Express (STK) simulator, so you have a Daraja app. Collect:
 
-The public marketplace reads only `published` agent submissions. Every listing displays its source agent, verification state and last-updated date. The platform does not seed fictional inventory.
+| Secret | Where to find it |
+|---|---|
+| `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET` | developer.safaricom.co.ke → My Apps → your app |
+| `MPESA_SHORTCODE` | Sandbox: `174379`. Production: your Paybill/Till number |
+| `MPESA_PASSKEY` | Sandbox: shown under APIs → M-Pesa Express → Simulate. Production: emailed by Safaricom (Go Live) |
+| `MPESA_ENV` | `sandbox` or `production` |
+| `MPESA_CALLBACK_SECRET` | any long random string you invent (`openssl rand -hex 24`). **Required in production** |
+| `MPESA_TRANSACTION_TYPE` / `MPESA_PARTY_B` | only for Till numbers: `CustomerBuyGoodsOnline` and your till |
 
-## 5. M-Pesa subscription publishing
-
-Production publishing is automatic only after:
-1. the agent accepts Agent Agreement version `2026-10-09`;
-2. Safaricom confirms the M-Pesa STK transaction by callback;
-3. the paid subscription remains within its active dates and listing limit.
-
-Deploy the included Edge Functions:
+Set them (CLI) or in the dashboard under **Edge Functions → Secrets**:
 
 ```bash
-supabase functions deploy mpesa-stk --no-verify-jwt
+supabase login
+supabase link --project-ref bpowsaqvxfsvbcdkjcbp
+supabase secrets set \
+  MPESA_ENV=sandbox \
+  MPESA_CONSUMER_KEY=xxxx \
+  MPESA_CONSUMER_SECRET=xxxx \
+  MPESA_SHORTCODE=174379 \
+  MPESA_PASSKEY=xxxx \
+  MPESA_CALLBACK_SECRET=$(openssl rand -hex 24)
+supabase secrets set REVIEW_SALT=$(openssl rand -hex 24)
+```
+
+`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided automatically. Never put any of these in `config.js`.
+
+Deploy (JWT verification must be OFF, Safaricom and signed-out reviewers have no Supabase login):
+
+```bash
+supabase functions deploy daraja --no-verify-jwt
 supabase functions deploy submit-review --no-verify-jwt
 ```
 
-Set these server-side secrets (never in `config.js`):
+The callback URL is built for you as
+`https://bpowsaqvxfsvbcdkjcbp.supabase.co/functions/v1/daraja/callback?s=<MPESA_CALLBACK_SECRET>`; Express needs no callback registration in the portal, it is sent with each request.
 
-```bash
-supabase secrets set \
-  MPESA_ENV=sandbox \
-  MPESA_CONSUMER_KEY=... \
-  MPESA_CONSUMER_SECRET=... \
-  MPESA_SHORTCODE=... \
-  MPESA_PASSKEY=... \
-  MPESA_CALLBACK_URL=https://YOUR_PROJECT.supabase.co/functions/v1/mpesa-stk/callback
-```
+### Test in sandbox
+Agent portal → Subscription → pick a plan → accept agreement → pay. In sandbox use your own number in the STK simulator; the sandbox callback reports Safaricom's shared test number, so the phone check is relaxed. Watch `supabase functions logs daraja` if anything stalls. Status polling reconciles a missed callback via the STK Query API.
 
-Supabase automatically supplies the project URL and service-role environment values to deployed functions. Confirm current Supabase behavior before launch. Configure Daraja sandbox first, test successful, cancelled, timed-out and reversed transactions, then move to production credentials.
+### Go live
+1. Complete Safaricom Go Live and get your production shortcode, passkey and production app keys.
+2. `supabase secrets set MPESA_ENV=production MPESA_SHORTCODE=... MPESA_PASSKEY=... MPESA_CONSUMER_KEY=... MPESA_CONSUMER_SECRET=...` (callback secret must already be set).
+3. Redeploy nothing; secrets apply on the next call. Do a real KSh 2,500 test payment with your own number.
 
-**Do not trust a browser success screen as proof of payment.** Only the signed/provider callback handled on the server activates the subscription.
+## 3. Google Maps (optional)
+Create a browser key with Maps JavaScript + Places, restrict by referrer, put it in `googleMapsApiKey` in `config.js`. Without it agents enter coordinates or use their device location.
 
-## 6. Agent Agreement
+## 4. Deploy the site
+Static files. Deploy the folder to Vercel/Netlify/Cloudflare Pages. Local test: `python3 -m http.server 8000`.
 
-`AGENT_AGREEMENT.md` is a product draft, not legal advice. Have a qualified Kenyan advocate review it before collecting money or launching. The clickwrap records the agreement version, legal name, account, timestamp and technical audit metadata. Material changes should use a new version and require renewed acceptance.
+## How customers and agents talk
+Customers submit an enquiry or booking with their name, phone/WhatsApp, email, preferred channel and consent. The agent sees it in **Enquiries/Bookings** with one-tap **WhatsApp**, **Email** and **Call** buttons prefilled with a greeting, and the conversation continues outside the app.
 
-## 7. Verified customer reviews
 
-Agents create one-time invitations after a genuine stay or tenancy. Customers submit through the `submit-review` Edge Function. The function hashes and validates the token, checks expiry and one-time use, then publishes the review. Direct anonymous inserts are blocked by RLS.
+## Changing subscription prices
+
+1. Run `supabase/migrations/20261017010000_editable_plan_prices.sql` in the SQL Editor (after the two earlier migrations).
+2. Redeploy the `daraja` function (it now reads prices from the database).
+3. Sign in to `/admin.html`, open **Settings**, and edit **Plan prices** (whole shillings, minimum KSh 1).
+
+Sandbox payments never move real money. To test with your own money you need production Daraja credentials
+(Safaricom Go Live): set `MPESA_ENV=production`, the production shortcode and passkey, and a fresh `MPESA_CALLBACK_SECRET`.
+Set a plan to KSh 1 to 10, pay it from your own phone, then set the real price back.
