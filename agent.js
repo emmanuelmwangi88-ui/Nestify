@@ -61,7 +61,7 @@ function closeDlg() { const d = $('#dlg'); if (d.open) d.close(); S.pay = null; 
 
 /* ---------- Boot and auth ---------- */
 async function boot() {
-  if (!LIVE) { $('#authView').classList.remove('hidden'); $('#configWarn').classList.remove('hidden'); return; }
+  if (!LIVE) { hideBoot(); $('#authView').classList.remove('hidden'); $('#configWarn').classList.remove('hidden'); return; }
   db.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') { S.recovery = true; showAuthView(); showPane('reset'); return; }
     if (event === 'SIGNED_OUT') { S.user = null; showAuthView(); }
@@ -71,7 +71,8 @@ async function boot() {
   if (data.session && !S.recovery) { S.user = data.session.user; await enterApp(); }
   else if (!S.recovery) showAuthView();
 }
-function showAuthView() { $('#appView').classList.add('hidden'); $('#authView').classList.remove('hidden'); }
+function hideBoot() { const b = document.getElementById('boot'); if (b) b.remove(); }
+function showAuthView() { hideBoot(); $('#appView').classList.add('hidden'); $('#authView').classList.remove('hidden'); }
 function showPane(name) {
   $$('#authView form').forEach(f => f.classList.toggle('hidden', f.id !== 'pane' + name[0].toUpperCase() + name.slice(1)));
   $$('#authTabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.pane === name)));
@@ -152,6 +153,7 @@ async function loadData() {
   if (failed) toast('Some of your data could not be loaded. Pull to refresh or try again.', 'err');
 }
 async function enterApp() {
+  hideBoot();
   $('#authView').classList.add('hidden'); $('#appView').classList.remove('hidden');
   $('#view').innerHTML = '<div class="skeleton" style="min-height:260px"></div>';
   await loadProfile(); await loadData();
