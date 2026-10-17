@@ -218,7 +218,12 @@ function vPayments() {
 
 function vSettings() {
   const s = S.cache.settings || {}, sup = s.support_contact || {}, ms = s.marketplace_status || {};
-  return `<div class="two-col"><form class="panel form-wrap" data-form="support" novalidate><h2>Support contact</h2><p class="muted small">Shown in the site footer.</p>
+  const DEF = { starter: [2500, 3], growth: [6500, 12], elite: [15000, 40] }, pl = s.plans || {};
+  const plans = `<form class="panel form-wrap" data-form="plans" novalidate><h2>Plan prices</h2><p class="muted small">Whole shillings per month, and how many live listings each plan allows. The change applies to the next payment straight away. M-Pesa needs at least KSh 1.</p>
+    ${Object.keys(DEF).map(k => `<div class="row-2"><label class="fld"><span>${k[0].toUpperCase() + k.slice(1)} price (KSh)</span><input name="${k}_amount" type="number" min="1" max="1000000" step="1" required value="${esc(String((pl[k] || {}).amount || DEF[k][0]))}"></label>
+    <label class="fld"><span>Listing limit</span><input name="${k}_limit" type="number" min="1" max="1000" step="1" required value="${esc(String((pl[k] || {}).limit || DEF[k][1]))}"></label></div>`).join('')}
+    <div><button class="btn">Save prices</button></div><p class="form-msg" role="alert"></p></form>`;
+  return plans + `<div class="two-col"><form class="panel form-wrap" data-form="support" novalidate><h2>Support contact</h2><p class="muted small">Shown in the site footer.</p>
     <label class="fld"><span>Support email</span><input name="email" type="email" required value="${esc(sup.email || '')}"></label>
     <label class="fld"><span>Support WhatsApp number (optional)</span><input name="phone" type="tel" value="${esc(sup.phone || '')}" placeholder="0712 345 678"></label>
     <div><button class="btn">Save</button></div><p class="form-msg" role="alert"></p></form>
@@ -265,6 +270,10 @@ document.addEventListener('submit', e => {
   const f = e.target.closest('form[data-form]'); if (!f) return; e.preventDefault();
   const fd = new FormData(f);
   if (f.dataset.form === 'grant') grantPlan(f);
+  else if (f.dataset.form === 'plans') {
+    const v = {}; for (const k of ['starter', 'growth', 'elite']) v[k] = { amount: Number(fd.get(k + '_amount')), limit: Number(fd.get(k + '_limit')) };
+    rpc('admin_set_plans', { p_plans: v }).then(ok => { if (ok !== false && ok !== null && ok !== undefined) { toast('Prices saved.', 'ok'); refresh(); } });
+  }
   else if (f.dataset.form === 'support') saveSetting('support_contact', { email: String(fd.get('email')).trim(), phone: String(fd.get('phone') || '').trim() }, f);
   else if (f.dataset.form === 'status') saveSetting('marketplace_status', { maintenance: !!fd.get('maintenance'), accepting_listings: !!fd.get('accepting') }, f);
 });

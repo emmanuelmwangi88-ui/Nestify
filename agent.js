@@ -139,8 +139,20 @@ async function loadProfile() {
   }
   S.profile = row || { id: S.user.id, email: S.user.email, full_name: '', phone: '', agency_name: '', license_number: '', role: 'agent', verification_status: 'pending', account_status: 'active' };
 }
+async function loadPlanPrices() {
+  try {
+    const { data } = await db.from('platform_settings').select('value').eq('key', 'plans').maybeSingle();
+    const v = (data && data.value) || {};
+    Object.keys(PLANS).forEach(k => {
+      const a = Number(v[k] && v[k].amount), l = Number(v[k] && v[k].limit);
+      if (Number.isInteger(a) && a >= 1) PLANS[k].amount = a;
+      if (Number.isInteger(l) && l >= 1) { PLANS[k].limit = l; PLANS[k].perks[0] = l + ' live listings'; }
+    });
+  } catch (_) { /* fall back to the built-in prices */ }
+}
 async function loadData() {
   const uid = S.user.id;
+  await loadPlanPrices();
   const [p, e, b, rv, n, su, ag] = await Promise.all([
     db.from('properties').select('*, property_media(id,kind,public_url,storage_path,sort_order,alt_text)').eq('agent_id', uid).order('updated_at', { ascending: false }),
     db.from('enquiries').select('*, properties(title)').eq('agent_id', uid).order('created_at', { ascending: false }).limit(200),

@@ -78,3 +78,14 @@ Static files. Deploy the folder to Vercel/Netlify/Cloudflare Pages. Local test: 
 
 ## How customers and agents talk
 Customers submit an enquiry or booking with their name, phone/WhatsApp, email, preferred channel and consent. The agent sees it in **Enquiries/Bookings** with one-tap **WhatsApp**, **Email** and **Call** buttons prefilled with a greeting, and the conversation continues outside the app.
+
+
+## Changing subscription prices
+
+1. Run `supabase/migrations/20261017010000_editable_plan_prices.sql` in the SQL Editor (after the two earlier migrations).
+2. Redeploy the `daraja` function (it now reads prices from the database).
+3. Sign in to `/admin.html`, open **Settings**, and edit **Plan prices** (whole shillings, minimum KSh 1).
+
+Sandbox payments never move real money. To test with your own money you need production Daraja credentials
+(Safaricom Go Live): set `MPESA_ENV=production`, the production shortcode and passkey, and a fresh `MPESA_CALLBACK_SECRET`.
+Set a plan to KSh 1 to 10, pay it from your own phone, then set the real price back.

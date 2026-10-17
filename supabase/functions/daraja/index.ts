@@ -25,12 +25,21 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 // Keep in step with current_agreement_version() in supabase-schema.sql and AGREEMENT_VERSION in agent.js.
 const AGREEMENT_VERSION = '2026-10-15';
-const PLANS = {
+// Fallback prices. The live prices are set by the super admin in platform_settings (key 'plans').
+const DEFAULT_PLANS: Record<string, { amount: number; limit: number }> = {
   starter: { amount: 2500, limit: 3 },
   growth: { amount: 6500, limit: 12 },
   elite: { amount: 15000, limit: 40 },
-} as const;
-type PlanKey = keyof typeof PLANS;
+};
+type PlanKey = string;
+async function loadPlan(key: string): Promise<{ amount: number; limit: number } | null> {
+  if (!DEFAULT_PLANS[key]) return null;
+  const { data } = await admin.from('platform_settings').select('value').eq('key', 'plans').maybeSingle();
+  const v = (data?.value as any)?.[key];
+  const amount = Number(v?.amount), limit = Number(v?.limit);
+  if (Number.isInteger(amount) && amount >= 1 && Number.isInteger(limit) && limit >= 1) return { amount, limit };
+  return DEFAULT_PLANS[key];
+}
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -182,7 +191,7 @@ async function authUser(req: Request) {
 
 async function handleStart(userId: string, body: any) {
   const planKey = String(body.plan || '') as PlanKey;
-  const plan = PLANS[planKey];
+  const plan = await loadPlan(planKey);
   if (!plan) return json({ error: 'Please choose a valid plan.' }, 400);
   const phone = normalizePhone(String(body.phone || ''));
   if (!phone) return json({ error: 'Enter a valid Safaricom number, for example 0712 345 678.' }, 400);
