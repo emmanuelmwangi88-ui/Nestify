@@ -1,162 +1,582 @@
-const CFG=window.NESTIFY_CONFIG||{};
-const LIVE=Boolean(CFG.supabaseUrl&&CFG.supabaseAnonKey&&window.supabase);
-const db=LIVE?window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey):null;
-const COUNTIES=['Baringo','Bomet','Bungoma','Busia','Elgeyo-Marakwet','Embu','Garissa','Homa Bay','Isiolo','Kajiado','Kakamega','Kericho','Kiambu','Kilifi','Kirinyaga','Kisii','Kisumu','Kitui','Kwale','Laikipia','Lamu','Machakos','Makueni','Mandera','Marsabit','Meru','Migori','Mombasa','Murang’a','Nairobi','Nakuru','Nandi','Narok','Nyamira','Nyandarua','Nyeri','Samburu','Siaya','Taita-Taveta','Tana River','Tharaka-Nithi','Trans Nzoia','Turkana','Uasin Gishu','Vihiga','Wajir','West Pokot'];
+'use strict';
+/* Nestify marketplace: browse, filter, enquire, book and review. */
 
-const DEMO_PROPERTIES=[
- {id:'demo-rent-1',is_demo:true,agent_id:'demo',kind:'rent',status:'published',title:'Westlands two-bedroom city apartment',description:'Demonstration listing showing how an agent can present a bright two-bedroom apartment with an open kitchen, balcony, en-suite main bedroom, backup water and secure basement parking. This example is not available for rent.',property_type:'Apartment',county:'Nairobi',locality:'Westlands',address_text:'Westlands, Nairobi',latitude:-1.2676,longitude:36.8108,bedrooms:2,bathrooms:2,size_sqm:96,monthly_price:95000,amenities:['Furnished','Parking','Wi-Fi / fibre','24-hour security','Generator'],media:[['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1000&q=85&auto=format&fit=crop','Living room'],['https://images.unsplash.com/photo-1560185008-b033106af5c3?w=1000&q=85&auto=format&fit=crop','Bedroom'],['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1000&q=85&auto=format&fit=crop','Interior detail']],updated_at:'2026-10-01T10:00:00Z'},
- {id:'demo-rent-2',is_demo:true,agent_id:'demo',kind:'rent',status:'published',title:'Karen four-bedroom garden house',description:'Demonstration of a family-house listing with four bedrooms, a private garden, staff room, solar backup and covered parking. Exact specifications and pricing are examples only; this is not a currently offered home.',property_type:'House',county:'Nairobi',locality:'Karen',address_text:'Karen, Nairobi',latitude:-1.3197,longitude:36.7073,bedrooms:4,bathrooms:3,size_sqm:285,monthly_price:220000,amenities:['Parking','Pet friendly','Garden','Solar power','24-hour security'],media:[['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1000&q=85&auto=format&fit=crop','House exterior'],['https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1000&q=85&auto=format&fit=crop','Living room'],['https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=1000&q=85&auto=format&fit=crop','Kitchen']],updated_at:'2026-09-29T10:00:00Z'},
- {id:'demo-rent-3',is_demo:true,agent_id:'demo',kind:'rent',status:'published',title:'Nyali three-bedroom ocean-view apartment',description:'Demonstration of a coastal rental preview with a large balcony, three bedrooms, shared pool, lift access and secure parking. The location, price and availability are illustrative and must not be treated as a live offer.',property_type:'Apartment',county:'Mombasa',locality:'Nyali',address_text:'Nyali, Mombasa',latitude:-4.0435,longitude:39.6682,bedrooms:3,bathrooms:2,size_sqm:142,monthly_price:120000,amenities:['Furnished','Parking','Swimming pool','Air conditioning','24-hour security'],media:[['https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=1000&q=85&auto=format&fit=crop','Coastal view'],['https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1000&q=85&auto=format&fit=crop','Furnished lounge'],['https://images.unsplash.com/photo-1600121848594-d8644e57abab?w=1000&q=85&auto=format&fit=crop','Interior']],updated_at:'2026-09-26T10:00:00Z'},
- {id:'demo-rent-4',is_demo:true,agent_id:'demo',kind:'rent',status:'published',title:'Nakuru three-bedroom family bungalow',description:'Demonstration of a practical bungalow listing with three bedrooms, enclosed garden, water storage and two parking spaces. This record exists to preview the product and is not a real advertisement.',property_type:'Bungalow',county:'Nakuru',locality:'Lanet',address_text:'Lanet, Nakuru',latitude:-0.3031,longitude:36.0800,bedrooms:3,bathrooms:2,size_sqm:128,monthly_price:45000,amenities:['Parking','Pet friendly','Garden','Borehole'],media:[['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1000&q=85&auto=format&fit=crop','Bungalow exterior'],['https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=1000&q=85&auto=format&fit=crop','Lounge'],['https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=1000&q=85&auto=format&fit=crop','Bedroom']],updated_at:'2026-09-20T10:00:00Z'},
- {id:'demo-stay-1',is_demo:true,agent_id:'demo',kind:'stay',status:'published',title:'Diani four-bedroom pool villa preview',description:'Demonstration of a full short-stay listing with a private pool, four en-suite bedrooms, equipped kitchen, Wi-Fi and space for eight guests. This is a UI example, not a bookable villa.',property_type:'Villa',county:'Kwale',locality:'Diani Beach',address_text:'Diani Beach, Kwale',latitude:-4.2797,longitude:39.5942,bedrooms:4,bathrooms:4,nightly_price:32000,max_guests:8,min_nights:2,amenities:['Furnished','Swimming pool','Wi-Fi / fibre','Parking','Air conditioning'],media:[['https://images.unsplash.com/photo-1589197331516-4d84b72ebde3?w=1000&q=85&auto=format&fit=crop','Pool and coast'],['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1000&q=85&auto=format&fit=crop','Villa exterior'],['https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1000&q=85&auto=format&fit=crop','Villa interior']],updated_at:'2026-10-02T10:00:00Z'},
- {id:'demo-stay-2',is_demo:true,agent_id:'demo',kind:'stay',status:'published',title:'Kilimani serviced one-bedroom preview',description:'Demonstration of an urban BnB profile with a furnished one-bedroom layout, workspace, high-speed internet, gym and self check-in. It is not a live or bookable property.',property_type:'Apartment',county:'Nairobi',locality:'Kilimani',address_text:'Kilimani, Nairobi',latitude:-1.2921,longitude:36.7835,bedrooms:1,bathrooms:1,nightly_price:12500,max_guests:2,min_nights:1,amenities:['Furnished','Wi-Fi / fibre','Gym','24-hour security','Parking'],media:[['https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1000&q=85&auto=format&fit=crop','Apartment lounge'],['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1000&q=85&auto=format&fit=crop','Bedroom'],['https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1000&q=85&auto=format&fit=crop','Kitchen and dining']],updated_at:'2026-09-30T10:00:00Z'},
- {id:'demo-stay-3',is_demo:true,agent_id:'demo',kind:'stay',status:'published',title:'Naivasha lakeside cottage preview',description:'Demonstration of a two-bedroom getaway with a fireplace, furnished deck, kitchen, garden and a two-night minimum stay. The imagery and pricing illustrate the listing format only.',property_type:'Cottage',county:'Nakuru',locality:'Naivasha',address_text:'Naivasha, Nakuru',latitude:-0.7172,longitude:36.4310,bedrooms:2,bathrooms:2,nightly_price:18000,max_guests:4,min_nights:2,amenities:['Furnished','Parking','Pet friendly','Garden','Wi-Fi / fibre'],media:[['https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?w=1000&q=85&auto=format&fit=crop','Cottage exterior'],['https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1000&q=85&auto=format&fit=crop','Cottage room'],['https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=1000&q=85&auto=format&fit=crop','Cottage kitchen']],updated_at:'2026-09-24T10:00:00Z'},
- {id:'demo-stay-4',is_demo:true,agent_id:'demo',kind:'stay',status:'published',title:'Watamu tropical villa preview',description:'Demonstration of a coastal villa listing for six guests with three bedrooms, a pool, air conditioning and walkable beach access. This example cannot be reserved and is not current inventory.',property_type:'Villa',county:'Kilifi',locality:'Watamu',address_text:'Watamu, Kilifi',latitude:-3.3539,longitude:40.0200,bedrooms:3,bathrooms:3,nightly_price:26000,max_guests:6,min_nights:2,amenities:['Furnished','Swimming pool','Wi-Fi / fibre','Air conditioning','24-hour security'],media:[['https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1000&q=85&auto=format&fit=crop','Tropical pool'],['https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1000&q=85&auto=format&fit=crop','Villa'],['https://images.unsplash.com/photo-1600121848594-d8644e57abab?w=1000&q=85&auto=format&fit=crop','Interior']],updated_at:'2026-09-22T10:00:00Z'}
-].map(p=>({...p,media:p.media.map((m,i)=>({id:p.id+'-m'+i,kind:'image',public_url:m[0],alt_text:m[1],sort_order:i})),agent_name:'Nestify product demo',agency_name:'Not a real agent'}));
-
-const DEMO_IMAGES=[
- 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1560185008-b033106af5c3?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1589197331516-4d84b72ebde3?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1600121848594-d8644e57abab?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=1000&q=85&auto=format&fit=crop','https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=1000&q=85&auto=format&fit=crop'
+const PROP_SELECT = '*, property_media(id,kind,public_url,alt_text,sort_order), property_reviews(id,rating,reviewer_name,title,body,owner_response,created_at)';
+const REVIEW_COLS = 'id,rating,reviewer_name,title,body,owner_response,created_at';
+const BUDGETS = {
+  rent: [30000, 60000, 100000, 200000, 500000],
+  stay: [10000, 20000, 30000, 50000]
+};
+const CHIP_AMENITIES = ['Furnished', 'Parking', 'Pet friendly', 'Swimming pool', 'Wi-Fi / fibre', '24-hour security', 'Garden', 'Generator'];
+const REPORT_REASONS = [
+  ['fraud', 'Looks like a scam'], ['unavailable', 'No longer available'], ['incorrect_price', 'Price is wrong'],
+  ['wrong_location', 'Location is wrong'], ['misleading_media', 'Photos are misleading'], ['duplicate', 'Duplicate listing'],
+  ['unsafe', 'Unsafe property'], ['other', 'Something else']
 ];
-const DEMO_MORE_RAW=[
- {id:'demo-rent-5',kind:'rent',title:'Ruaka two-bedroom apartment preview',property_type:'Apartment',county:'Kiambu',locality:'Ruaka',address_text:'Ruaka, Kiambu',latitude:-1.2041,longitude:36.7784,bedrooms:2,bathrooms:2,size_sqm:82,monthly_price:52000,amenities:['Parking','Wi-Fi / fibre','24-hour security','Borehole'],pics:[19,1,17],description:'Demonstration of a commuter-friendly apartment profile with two bedrooms, en-suite main bedroom, balcony, fibre readiness and secure parking. It is not a live rental.'},
- {id:'demo-rent-6',kind:'rent',title:'Thika three-bedroom townhouse preview',property_type:'Townhouse',county:'Kiambu',locality:'Thika',address_text:'Thika, Kiambu',latitude:-1.0332,longitude:37.0693,bedrooms:3,bathrooms:3,size_sqm:156,monthly_price:68000,amenities:['Parking','Pet friendly','Garden','24-hour security'],pics:[8,6,16],description:'Demonstration of a three-level townhouse listing with family living space, a private yard and two parking bays. All commercial details are illustrative.'},
- {id:'demo-rent-7',kind:'rent',title:'Elgon View executive apartment preview',property_type:'Apartment',county:'Uasin Gishu',locality:'Elgon View',address_text:'Elgon View, Eldoret',latitude:0.5143,longitude:35.2698,bedrooms:2,bathrooms:2,size_sqm:105,monthly_price:58000,amenities:['Furnished','Parking','Wi-Fi / fibre','Generator'],pics:[3,15,4],description:'Demonstration of a furnished Eldoret apartment with workspace, two bathrooms, backup power and internet. This example is not currently offered.'},
- {id:'demo-rent-8',kind:'rent',title:'Milimani Kisumu three-bedroom preview',property_type:'Apartment',county:'Kisumu',locality:'Milimani',address_text:'Milimani, Kisumu',latitude:-0.1022,longitude:34.7617,bedrooms:3,bathrooms:2,size_sqm:132,monthly_price:72000,amenities:['Parking','Wi-Fi / fibre','24-hour security','Balcony'],pics:[15,0,18],description:'Demonstration of a spacious city apartment preview with a balcony, separate utility area and secure compound. It is not live inventory.'},
- {id:'demo-rent-9',kind:'rent',title:'Meru three-bedroom maisonette preview',property_type:'Maisonette',county:'Meru',locality:'Milimani',address_text:'Milimani, Meru',latitude:0.0515,longitude:37.6456,bedrooms:3,bathrooms:3,size_sqm:175,monthly_price:55000,amenities:['Parking','Pet friendly','Garden','Solar power'],pics:[5,17,16],description:'Demonstration of a highland maisonette listing with three bedrooms, solar backup, garden and covered parking. Price and availability are examples.'},
- {id:'demo-rent-10',kind:'rent',title:'Machakos four-bedroom family house preview',property_type:'House',county:'Machakos',locality:'Mua Hills',address_text:'Mua Hills, Machakos',latitude:-1.5133,longitude:37.2630,bedrooms:4,bathrooms:3,size_sqm:240,monthly_price:85000,amenities:['Parking','Pet friendly','Garden','Borehole','Solar power'],pics:[7,6,17],description:'Demonstration of a detached family-house page with generous rooms, hill views, independent water and a solar system. It is not an advertisement.'},
- {id:'demo-rent-11',kind:'rent',title:'Kitengela gated townhouse preview',property_type:'Townhouse',county:'Kajiado',locality:'Kitengela',address_text:'Kitengela, Kajiado',latitude:-1.4692,longitude:36.9580,bedrooms:3,bathrooms:3,size_sqm:165,monthly_price:62000,amenities:['Parking','Pet friendly','24-hour security','Borehole'],pics:[9,8,1],description:'Demonstration of a gated-estate townhouse listing with three bedrooms, parking, water storage and controlled access. This is not live inventory.'},
- {id:'demo-rent-12',kind:'rent',title:'Nyeri two-bedroom cottage preview',property_type:'Cottage',county:'Nyeri',locality:'King’ong’o',address_text:'King’ong’o, Nyeri',latitude:-0.4167,longitude:36.9500,bedrooms:2,bathrooms:1,size_sqm:94,monthly_price:38000,amenities:['Parking','Pet friendly','Garden','Solar power'],pics:[13,14,16],description:'Demonstration of a compact highland cottage with a garden, fireplace-style lounge and solar backup. The property is not actually available.'},
- {id:'demo-rent-13',kind:'rent',title:'Nanyuki three-bedroom house preview',property_type:'House',county:'Laikipia',locality:'Nanyuki',address_text:'Nanyuki, Laikipia',latitude:0.0167,longitude:37.0728,bedrooms:3,bathrooms:2,size_sqm:148,monthly_price:70000,amenities:['Parking','Pet friendly','Garden','Wi-Fi / fibre','Solar power'],pics:[6,5,17],description:'Demonstration of a Nanyuki house profile with three bedrooms, a fenced garden, internet and solar support. This example is not a live offer.'},
- {id:'demo-rent-14',kind:'rent',title:'Lavington furnished apartment preview',property_type:'Apartment',county:'Nairobi',locality:'Lavington',address_text:'Lavington, Nairobi',latitude:-1.2833,longitude:36.7667,bedrooms:3,bathrooms:3,size_sqm:168,monthly_price:165000,amenities:['Furnished','Parking','Swimming pool','Wi-Fi / fibre','Gym','Generator'],pics:[15,18,3],description:'Demonstration of a premium furnished apartment preview with three bedrooms, pool, gym, generator and staff room. It cannot be rented.'},
- {id:'demo-stay-5',kind:'stay',title:'Lamu Swahili house preview',property_type:'House',county:'Lamu',locality:'Lamu Old Town',address_text:'Lamu Old Town, Lamu',latitude:-2.2717,longitude:40.9020,bedrooms:3,bathrooms:3,nightly_price:22000,max_guests:6,min_nights:2,amenities:['Furnished','Wi-Fi / fibre','Air conditioning','Rooftop terrace'],pics:[14,18,12],description:'Demonstration of a Swahili-inspired stay page with three rooms, courtyard and rooftop terrace. It is not a real bookable house.'},
- {id:'demo-stay-6',kind:'stay',title:'Nanyuki cabin retreat preview',property_type:'Cottage',county:'Laikipia',locality:'Nanyuki',address_text:'Nanyuki, Laikipia',latitude:0.0060,longitude:37.0740,bedrooms:2,bathrooms:2,nightly_price:15500,max_guests:4,min_nights:2,amenities:['Furnished','Parking','Pet friendly','Garden','Wi-Fi / fibre'],pics:[13,16,17],description:'Demonstration of a two-bedroom cabin stay with deck, fireplace and garden. The page illustrates features only and accepts no real reservation.'},
- {id:'demo-stay-7',kind:'stay',title:'Kisumu lake-view apartment preview',property_type:'Apartment',county:'Kisumu',locality:'Milimani',address_text:'Milimani, Kisumu',latitude:-0.1030,longitude:34.7580,bedrooms:2,bathrooms:2,nightly_price:11000,max_guests:4,min_nights:1,amenities:['Furnished','Parking','Wi-Fi / fibre','Air conditioning'],pics:[0,15,4],description:'Demonstration of a furnished lake-region stay with two bedrooms, balcony and workspace. This is a product preview rather than a booking offer.'},
- {id:'demo-stay-8',kind:'stay',title:'Naro Moru mountain cottage preview',property_type:'Cottage',county:'Nyeri',locality:'Naro Moru',address_text:'Naro Moru, Nyeri',latitude:-0.1637,longitude:37.0177,bedrooms:3,bathrooms:2,nightly_price:19500,max_guests:6,min_nights:2,amenities:['Furnished','Parking','Pet friendly','Garden','Fireplace'],pics:[13,14,16],description:'Demonstration of a mountain-base cottage profile with three bedrooms, garden and fireplace. It is not a current accommodation listing.'},
- {id:'demo-stay-9',kind:'stay',title:'Mombasa Old Town studio preview',property_type:'Studio',county:'Mombasa',locality:'Old Town',address_text:'Old Town, Mombasa',latitude:-4.0622,longitude:39.6799,bedrooms:1,bathrooms:1,nightly_price:7500,max_guests:2,min_nights:1,amenities:['Furnished','Wi-Fi / fibre','Air conditioning'],pics:[4,3,18],description:'Demonstration of a compact studio stay with furnished sleeping area and workspace near the historic centre. It is not bookable.'},
- {id:'demo-stay-10',kind:'stay',title:'Bamburi two-bedroom stay preview',property_type:'Apartment',county:'Mombasa',locality:'Bamburi',address_text:'Bamburi, Mombasa',latitude:-3.9867,longitude:39.7300,bedrooms:2,bathrooms:2,nightly_price:14000,max_guests:4,min_nights:1,amenities:['Furnished','Swimming pool','Parking','Wi-Fi / fibre','Air conditioning'],pics:[12,10,15],description:'Demonstration of a coastal apartment stay with two bedrooms, pool and furnished lounge. It is example content, not available accommodation.'},
- {id:'demo-stay-11',kind:'stay',title:'Malindi courtyard villa preview',property_type:'Villa',county:'Kilifi',locality:'Malindi',address_text:'Malindi, Kilifi',latitude:-3.2192,longitude:40.1169,bedrooms:3,bathrooms:3,nightly_price:24500,max_guests:6,min_nights:2,amenities:['Furnished','Swimming pool','Parking','Wi-Fi / fibre','Air conditioning'],pics:[11,7,16],description:'Demonstration of a three-bedroom tropical villa page with courtyard pool and equipped kitchen. No real booking can be made.'},
- {id:'demo-stay-12',kind:'stay',title:'Naivasha garden studio preview',property_type:'Studio',county:'Nakuru',locality:'Naivasha',address_text:'Naivasha, Nakuru',latitude:-0.7160,longitude:36.4320,bedrooms:1,bathrooms:1,nightly_price:8500,max_guests:2,min_nights:1,amenities:['Furnished','Parking','Garden','Wi-Fi / fibre'],pics:[19,14,17],description:'Demonstration of a private garden studio with kitchenette, desk and parking. It is included only to preview the booking interface.'},
- {id:'demo-stay-13',kind:'stay',title:'Maasai Mara tented lodge preview',property_type:'Lodge',county:'Narok',locality:'Maasai Mara',address_text:'Maasai Mara, Narok',latitude:-1.4931,longitude:35.1439,bedrooms:1,bathrooms:1,nightly_price:38000,max_guests:2,min_nights:2,amenities:['Furnished','Parking','Full board','Solar power','Guided activities'],pics:[12,13,16],description:'Demonstration of a safari-lodge presentation with an en-suite tent, meal plan and solar power. It does not represent a real camp or reservation.'},
- {id:'demo-stay-14',kind:'stay',title:'Tigoni tea-country cottage preview',property_type:'Cottage',county:'Kiambu',locality:'Tigoni',address_text:'Tigoni, Kiambu',latitude:-1.1288,longitude:36.6596,bedrooms:2,bathrooms:2,nightly_price:16500,max_guests:4,min_nights:2,amenities:['Furnished','Parking','Pet friendly','Garden','Fireplace'],pics:[13,6,17],description:'Demonstration of a two-bedroom cottage escape with garden, fireplace and tea-country setting. This is not a live stay.'}
-];
-DEMO_PROPERTIES.push(...DEMO_MORE_RAW.map((p,idx)=>({...p,is_demo:true,status:'published',agent_id:'demo',updated_at:new Date(Date.UTC(2026,8,18-(idx%10),10)).toISOString(),media:p.pics.map((pic,i)=>({id:p.id+'-m'+i,kind:'image',public_url:DEMO_IMAGES[pic],alt_text:p.title+' image '+(i+1),sort_order:i})),agent_name:'Nestify product demo',agency_name:'Not a real agent'})));
 
-const EXTRA_HOUSES=[
- {id:'demo-rent-15',title:'Runda five-bedroom signature villa preview',property_type:'Villa',county:'Nairobi',locality:'Runda',address_text:'Runda, Nairobi',latitude:-1.2185,longitude:36.8176,bedrooms:5,bathrooms:6,size_sqm:520,monthly_price:480000,amenities:['Furnished','Parking','Swimming pool','Garden','Generator','24-hour security'],pics:[7,16,17],description:'Demonstration of an embassy-scale luxury villa with five en-suite bedrooms, private pool, landscaped garden, staff wing and backup power. It is not a live rental.'},
- {id:'demo-rent-16',title:'Muthaiga six-bedroom residence preview',property_type:'House',county:'Nairobi',locality:'Muthaiga',address_text:'Muthaiga, Nairobi',latitude:-1.2454,longitude:36.8302,bedrooms:6,bathrooms:6,size_sqm:680,monthly_price:650000,amenities:['Parking','Swimming pool','Garden','Borehole','Generator','24-hour security'],pics:[5,8,15],description:'Demonstration of a grand residential listing with formal reception rooms, six bedrooms, mature grounds, swimming pool and full utility backup. This is product-preview content.'},
- {id:'demo-rent-17',title:'Kitisuru contemporary glass house preview',property_type:'House',county:'Nairobi',locality:'Kitisuru',address_text:'Kitisuru, Nairobi',latitude:-1.2219,longitude:36.7607,bedrooms:5,bathrooms:5,size_sqm:460,monthly_price:420000,amenities:['Furnished','Parking','Garden','Wi-Fi / fibre','Solar power','24-hour security'],pics:[8,18,16],description:'Demonstration of an architect-designed five-bedroom home with double-height glazing, integrated living spaces, home office and private garden. It is not currently available.'},
- {id:'demo-rent-18',title:'Gigiri diplomatic townhouse preview',property_type:'Townhouse',county:'Nairobi',locality:'Gigiri',address_text:'Gigiri, Nairobi',latitude:-1.2320,longitude:36.8041,bedrooms:4,bathrooms:4,size_sqm:310,monthly_price:350000,amenities:['Furnished','Parking','Garden','Generator','Wi-Fi / fibre','24-hour security'],pics:[6,15,3],description:'Demonstration of a secure furnished townhouse concept near the diplomatic district, with four bedrooms, study, garden and full backup utilities. This is not a real offer.'},
- {id:'demo-rent-19',title:'Vipingo Ridge four-bedroom villa preview',property_type:'Villa',county:'Kilifi',locality:'Vipingo',address_text:'Vipingo, Kilifi',latitude:-3.8196,longitude:39.7987,bedrooms:4,bathrooms:5,size_sqm:390,monthly_price:360000,amenities:['Furnished','Parking','Swimming pool','Garden','Air conditioning','24-hour security'],pics:[11,7,15],description:'Demonstration of a coastal luxury villa profile with four en-suite bedrooms, pool courtyard, expansive terraces and air conditioning. It cannot be leased.'},
- {id:'demo-rent-20',title:'Tiwi beachfront five-bedroom house preview',property_type:'House',county:'Kwale',locality:'Tiwi',address_text:'Tiwi, Kwale',latitude:-4.2395,longitude:39.5987,bedrooms:5,bathrooms:5,size_sqm:445,monthly_price:390000,amenities:['Furnished','Parking','Swimming pool','Garden','Solar power','Air conditioning'],pics:[10,12,16],description:'Demonstration of a five-bedroom beachfront-house presentation with private pool, ocean-facing deck, staff accommodation and solar support. It is not live inventory.'},
- {id:'demo-rent-21',title:'Riat Hills panoramic residence preview',property_type:'House',county:'Kisumu',locality:'Riat Hills',address_text:'Riat Hills, Kisumu',latitude:-0.0571,longitude:34.7454,bedrooms:4,bathrooms:4,size_sqm:330,monthly_price:180000,amenities:['Parking','Swimming pool','Garden','Borehole','Solar power','24-hour security'],pics:[9,17,15],description:'Demonstration of a hillside residence profile with lake views, four bedrooms, pool, solar power and generous entertaining areas. This is an example listing only.'},
- {id:'demo-rent-22',title:'Nyali executive five-bedroom villa preview',property_type:'Villa',county:'Mombasa',locality:'Nyali',address_text:'Nyali, Mombasa',latitude:-4.0378,longitude:39.7046,bedrooms:5,bathrooms:5,size_sqm:410,monthly_price:320000,amenities:['Furnished','Parking','Swimming pool','Garden','Air conditioning','24-hour security'],pics:[12,8,18],description:'Demonstration of a spacious Nyali villa with five bedrooms, private pool, entertaining pavilion and secure compound. Pricing and availability are illustrative.'},
- {id:'demo-rent-23',title:'Nanyuki private estate house preview',property_type:'House',county:'Laikipia',locality:'Nanyuki',address_text:'Nanyuki, Laikipia',latitude:0.0254,longitude:37.0913,bedrooms:5,bathrooms:4,size_sqm:380,monthly_price:240000,amenities:['Furnished','Parking','Pet friendly','Garden','Solar power','Fireplace'],pics:[5,13,17],description:'Demonstration of a five-bedroom country-estate house with mountain outlook, fireplace, furnished living areas and independent solar energy. It is not available.'},
- {id:'demo-rent-24',title:'Tigoni tea-estate manor preview',property_type:'House',county:'Kiambu',locality:'Tigoni',address_text:'Tigoni, Kiambu',latitude:-1.1262,longitude:36.6580,bedrooms:5,bathrooms:4,size_sqm:430,monthly_price:280000,amenities:['Parking','Pet friendly','Garden','Borehole','Solar power','Fireplace'],pics:[13,6,16],description:'Demonstration of a highland manor-house listing with five bedrooms, fireplaces, mature garden and tea-country outlook. This record is not a real advertisement.'},
- {id:'demo-rent-25',title:'Naivasha lake-house estate preview',property_type:'House',county:'Nakuru',locality:'Naivasha',address_text:'Naivasha, Nakuru',latitude:-0.7544,longitude:36.3862,bedrooms:4,bathrooms:4,size_sqm:350,monthly_price:230000,amenities:['Furnished','Parking','Pet friendly','Garden','Solar power','Wi-Fi / fibre'],pics:[14,5,17],description:'Demonstration of a furnished lake-house estate with four bedrooms, broad veranda, garden, solar system and remote-work connectivity. It is an illustrative preview.'},
- {id:'demo-rent-26',title:'Kitengela courtyard villa preview',property_type:'Villa',county:'Kajiado',locality:'Kitengela',address_text:'Kitengela, Kajiado',latitude:-1.4741,longitude:36.9512,bedrooms:4,bathrooms:4,size_sqm:295,monthly_price:145000,amenities:['Parking','Pet friendly','Swimming pool','Garden','Borehole','24-hour security'],pics:[7,6,15],description:'Demonstration of a four-bedroom courtyard villa with compact pool, family garden, borehole and controlled estate access. It is not a currently marketed home.'}
-];
-DEMO_PROPERTIES.push(...EXTRA_HOUSES.map((p,idx)=>({...p,is_demo:true,kind:'rent',status:'published',agent_id:'demo',signature:idx<6,updated_at:new Date(Date.UTC(2026,9,8-(idx%7),10)).toISOString(),media:p.pics.map((pic,i)=>({id:p.id+'-m'+i,kind:'image',public_url:DEMO_IMAGES[pic],alt_text:p.title+' image '+(i+1),sort_order:i})),agent_name:'Nestify product demo',agency_name:'Not a real agent'})));
+const S = {
+  live: [], demos: [], error: false,
+  mode: 'rent', sort: 'featured', view: 'grid', limit: 9,
+  f: { q: '', county: '', type: '', budget: '', beds: '', guests: '', checkin: '', checkout: '', amenities: new Set() },
+  ranges: {},
+  saved: new Set(readLS('nestify_saved').map(String)),
+  compare: new Set(readLS('nestify_compare').map(String)),
+  recent: readLS('nestify_recent').map(String),
+  support: { email: 'hello@nestify.co.ke', phone: '' },
+  lastFocus: null
+};
 
+const allProps = () => [...S.live, ...S.demos];
+const findProp = id => allProps().find(p => String(p.id) === String(id));
+const priceOf = p => Number(p.kind === 'stay' ? p.nightly_price : p.monthly_price) || 0;
+const images = p => (p.media || []).filter(m => (m.kind || 'image') === 'image');
+const cover = p => (images(p)[0] || {}).public_url || '';
+const ratingOf = p => {
+  const r = p.property_reviews || [];
+  return r.length ? { avg: r.reduce((a, x) => a + Number(x.rating), 0) / r.length, n: r.length } : null;
+};
 
-
-let allProperties=[],filtered=[],mode='rent',sort='new',activeAmenity='',listingView='grid',visibleLimit=8;
-let compare=new Set(JSON.parse(localStorage.getItem('nestify_v2_compare')||'[]'));
-let recentlyViewed=JSON.parse(localStorage.getItem('nestify_v2_recent')||'[]');
-let saved=new Set(JSON.parse(localStorage.getItem('nestify_v2_saved')||'[]'));
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const esc=v=>{const d=document.createElement('div');d.textContent=String(v??'');return d.innerHTML};
-const money=v=>`KSh ${Number(v||0).toLocaleString('en-KE')}`;
-
-function localProperties(){try{return JSON.parse(localStorage.getItem('nestify_v2_properties')||'[]')}catch{return[]}}
-async function loadProperties(){
-  $('#listingGrid').innerHTML='<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
-  if(LIVE){
-    const {data,error}=await db.from('properties').select('*,property_media(*),property_reviews(*),profiles!properties_agent_id_fkey(full_name,agency_name,verification_status)').eq('status','published').order('updated_at',{ascending:false});
-    if(error){toast('Live inventory could not be loaded.');console.error(error);allProperties=[]}else allProperties=(data||[]).map(normalize);
-  }else { const localReviews=JSON.parse(localStorage.getItem('nestify_v2_reviews')||'[]');const approved=localProperties().filter(p=>p.status==='published').map(p=>normalize({...p,property_reviews:localReviews.filter(r=>r.property_id===p.id)})); allProperties=approved.length?approved:DEMO_PROPERTIES.map(p=>({...p,property_reviews:localReviews.filter(r=>r.property_id===p.id)})); }
-  updateStats();applyFilters();renderCompareBar();renderRecentlyViewed();renderSignature();
+/* ---------- Loading ---------- */
+function normalize(p) {
+  const media = (p.property_media || p.media || []).slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  const reviews = (p.property_reviews || []).slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  return { ...p, media, property_reviews: reviews, tier: Number(p.tier) || 0, updated_at: p.updated_at || p.created_at };
 }
-function normalize(p){
-  const media=p.property_media||p.media||[];
-  const profile=Array.isArray(p.profiles)?p.profiles[0]:p.profiles;
-  return {...p,media,agent_name:profile?.full_name||p.agent_name||'Registered agent',agency_name:profile?.agency_name||p.agency_name||'',updated_at:p.updated_at||p.created_at||new Date().toISOString()};
-}
-function init(){
-  $('#countyFilter').innerHTML='<option value="">All of Kenya</option>'+COUNTIES.map(c=>`<option>${esc(c)}</option>`).join('');
-  const today=new Date(),tomorrow=new Date(today);tomorrow.setDate(today.getDate()+1);
-  $('#searchCheckin').min=today.toISOString().slice(0,10);$('#searchCheckout').min=tomorrow.toISOString().slice(0,10);
-  $('#dataMode').innerHTML=LIVE?'<span style="background:#78d19c"></span> Connected to live approved submissions':'<span></span> Preview mode · labeled demo properties are shown';
-  $('#savedCount').textContent=saved.size;renderCompareBar();updatePlanner();loadProperties();
-}
-function setMode(next){mode=next;$$('.mode-tab').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));$$('.rent-field').forEach(x=>x.classList.toggle('hidden',mode!=='rent'));$$('.stay-field').forEach(x=>x.classList.toggle('hidden',mode!=='stay'));$('#listingKicker').textContent=mode==='stay'?'Short stays & BnBs':'Long-term rentals';$('#listingHeading').textContent=mode==='stay'?'Stays with accountable hosts':'Homes you can verify';applyFilters()}
-function setSort(next,el){sort=next;$$('.tool').forEach(x=>x.classList.remove('active'));el.classList.add('active');applyFilters()}
-function applyFilters(){
-  visibleLimit=8;
-  const county=$('#countyFilter').value,type=$('#typeFilter').value,budget=Number($('#budgetFilter').value||Infinity),q=($('#locationFilter').value||'').trim().toLowerCase(),beds=Number($('#bedFilter').value||0),guests=Number($('#guestFilter').value||0),nightBudget=Number($('#nightBudgetFilter').value||Infinity);
-  filtered=allProperties.filter(p=>{const hay=`${p.title} ${p.locality} ${p.county} ${p.property_type} ${(p.amenities||[]).join(' ')}`.toLowerCase();return p.kind===mode&&(!county||p.county===county)&&(!type||p.property_type===type)&&(!q||hay.includes(q))&&(!activeAmenity||(p.amenities||[]).includes(activeAmenity))&&(mode==='stay'?(!guests||Number(p.max_guests)>=guests)&&Number(p.nightly_price)<=nightBudget:Number(p.monthly_price)<=budget&&Number(p.bedrooms)>=beds)});
-  filtered.sort((a,b)=>sort==='low'?price(a)-price(b):sort==='high'?price(b)-price(a):new Date(b.updated_at)-new Date(a.updated_at));
-  const demos=filtered.filter(p=>p.is_demo).length;$('#filterSummary').innerHTML=`<b>${filtered.length}</b> ${mode==='stay'?'stay':'rental'} preview${filtered.length===1?'':'s'}${county?' in '+esc(county):''}${demos?` · <span>${demos} clearly labeled demo${demos===1?'':'s'}</span>`:''}`;
-  renderListings();
-}
-const price=p=>Number(p.kind==='stay'?p.nightly_price:p.monthly_price)||0;
-function primaryMedia(p){return (p.media||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).find(m=>(m.kind||'image')==='image')?.public_url||''}
-function renderListings(){
-  if(!filtered.length){
-    $('#loadMoreWrap').classList.add('hidden');
-    $('#listingGrid').innerHTML=`<div class="empty-list"><div class="empty-icon">⌂</div><h3>No approved ${mode==='stay'?'stays':'rentals'} here yet</h3><p>Nestify does not fill empty areas with invented properties. Live homes appear only after a registered agent submits evidence and the listing is approved.</p><a class="dark-btn" href="agent.html#new">Agents can add verified inventory →</a></div>`;return;
+
+async function loadProperties() {
+  $('#grid').innerHTML = '<div class="skeleton"></div>'.repeat(3);
+  S.error = false;
+  if (!LIVE) {
+    S.error = true;
+  } else {
+    const { data, error } = await db.from('properties').select(PROP_SELECT).eq('status', 'published')
+      .order('tier', { ascending: false }).order('updated_at', { ascending: false }).limit(500);
+    if (error) { console.error(error); S.error = true; } else S.live = data.map(normalize);
   }
-  $('#listingGrid').innerHTML=filtered.slice(0,visibleLimit).map(p=>`<article class="property-card" onclick="openProperty('${p.id}')"><div class="property-media">${primaryMedia(p)?`<img src="${esc(primaryMedia(p))}" alt="${esc(p.title)} interior or exterior" onerror="this.remove()"/>`:''}<span class="property-label ${p.is_demo?'demo-label':''}">${p.is_demo?'Demo preview':p.kind==='stay'?'Short stay':'For rent'}</span><button class="save-card" onclick="toggleSave(event,'${p.id}')" aria-label="Save property">${saved.has(String(p.id))?'♥':'♡'}</button><button class="compare-card ${compare.has(String(p.id))?'selected':''}" onclick="toggleCompare(event,'${p.id}')">${compare.has(String(p.id))?'✓ Comparing':'+ Compare'}</button></div><div class="property-body"><div class="property-price">${money(price(p))} <small>/${p.kind==='stay'?'night':'month'}</small></div><h3>${esc(p.title)}</h3><div class="property-location">${esc(p.locality)}, ${esc(p.county)} · Map location available</div>${reviewBadge(p)}<div class="property-meta"><span>${p.bedrooms} bed${p.bedrooms==1?'':'s'}</span><span>${p.bathrooms} bath${p.bathrooms==1?'':'s'}</span>${p.kind==='stay'?`<span>Up to ${p.max_guests} guests</span>`:(p.size_sqm?`<span>${p.size_sqm} m²</span>`:'')}</div><div class="verified-row"><span>${p.is_demo?'◇ Clearly labeled example':'✓ Approved agent submission'}</span><span>${p.is_demo?'Not live inventory':'Updated '+dateText(p.updated_at)}</span></div></div></article>`).join('');
-  const remain=Math.max(0,filtered.length-visibleLimit);$('#loadMoreWrap').classList.toggle('hidden',remain===0);$('#loadMoreCount').textContent=remain?`${remain} more available`:'';
-}
-function updateStats(){const live=allProperties.filter(p=>!p.is_demo);$('#liveCount').textContent=live.length;$('#countyCount').textContent=new Set(live.map(p=>p.county)).size}
-function renderCounties(){const counts=Object.fromEntries(COUNTIES.map(c=>[c,allProperties.filter(p=>p.county===c).length]));$('#countyGrid').innerHTML=COUNTIES.map(c=>`<div class="county-card ${counts[c]?'live':''}" onclick="selectCounty('${c.replace(/'/g,"\\'")}')"><b>${esc(c)}</b><span>${counts[c]?counts[c]+' approved listing'+(counts[c]===1?'':'s'):'Awaiting verified inventory'}</span></div>`).join('')}
-function selectCounty(c){$('#countyFilter').value=c;applyFilters();$('#discover').scrollIntoView({behavior:'smooth'})}
-function toggleSave(e,id){e.stopPropagation();saved.has(String(id))?saved.delete(String(id)):saved.add(String(id));localStorage.setItem('nestify_v2_saved',JSON.stringify([...saved]));$('#savedCount').textContent=saved.size;renderListings();toast(saved.has(String(id))?'Saved for later':'Removed from saved')}
-function openSaved(){const items=allProperties.filter(p=>saved.has(String(p.id)));if(!items.length)return openModal(`<div class="safety-body"><h2>No saved homes yet</h2><p>Use the heart on an approved listing to keep it here on this device.</p></div>`);openModal(`<div class="safety-body"><h2>Saved properties</h2>${items.map(p=>`<div style="padding:14px 0;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;gap:20px"><div><b>${esc(p.title)}</b><div class="modal-sub">${esc(p.locality)}, ${esc(p.county)}</div></div><button class="dark-btn" onclick="openProperty('${p.id}')">View</button></div>`).join('')}</div>`)}
-function openProperty(id){
-  const p=allProperties.find(x=>String(x.id)===String(id));if(!p)return;trackRecently(p.id);
-  const images=(p.media||[]).filter(m=>(m.kind||'image')==='image'),video=(p.media||[]).find(m=>m.kind==='video');
-  const gallery=images.length||video?`<div class="modal-gallery">${images[0]?`<img src="${esc(images[0].public_url)}" alt="${esc(p.title)} primary property image" onclick="openGallery('${p.id}',0)"/>`:video?`<video controls src="${esc(video.public_url)}"></video>`:''}<div class="gallery-secondary">${images.slice(1,3).map(m=>`<img src="${esc(m.public_url)}" alt="Additional interior image" onclick="openGallery('${p.id}',${images.indexOf(m)})"/>`).join('')}${video?`<video controls muted src="${esc(video.public_url)}"></video>`:''}</div></div>`:'';
-  const map=`https://www.google.com/maps?q=${encodeURIComponent(p.latitude+','+p.longitude)}&z=15&output=embed`;
-  openModal(`${gallery}<div class="modal-content"><div class="detail-top"><div><span class="kicker">${p.is_demo?'Demonstration preview':(p.kind==='stay'?'Short stay':'Long-term rental')+' · Approved'}</span><h2>${esc(p.title)}</h2><p class="modal-sub">${esc(p.address_text)}, ${esc(p.locality)}, ${esc(p.county)} County</p></div><div class="detail-side"><div class="detail-price">${money(price(p))}<small> /${p.kind==='stay'?'night':'month'}</small></div><div class="detail-actions"><button onclick="shareProperty('${p.id}')">↗ Share</button><button onclick="toggleCompare(event,'${p.id}')">${compare.has(String(p.id))?'✓ Added':'+ Compare'}</button></div></div></div><div class="detail-grid"><div class="detail-copy"><div class="facts"><span>${p.bedrooms} bedrooms</span><span>${p.bathrooms} bathrooms</span>${p.size_sqm?`<span>${p.size_sqm} m²</span>`:''}${(p.amenities||[]).map(a=>`<span>${esc(a)}</span>`).join('')}</div><p>${esc(p.description)}</p><iframe class="map-frame" title="Property map" loading="lazy" src="${map}"></iframe><div class="source-box ${p.is_demo?'demo-source':''}">${p.is_demo?'◇ DEMONSTRATION ONLY — This is a product example, not a real or available property. No agent will be contacted.':'✓ Submitted by '+esc(p.agent_name)+(p.agency_name?' · '+esc(p.agency_name):'')+'<br/>Record last updated '+new Date(p.updated_at).toLocaleDateString('en-KE',{dateStyle:'long'})+'. Confirm availability and identity before paying.'}</div></div>${requestForm(p)}</div>${reviewSection(p)}</div>`);
+  S.demos = (typeof DEMO_PROPERTIES !== 'undefined' ? DEMO_PROPERTIES : []).map(p => ({ ...p, property_reviews: [], tier: 0 }));
+  await loadRanges();
+  updateStats();
+  render();
+  renderRecent();
+  renderCompareBar();
+  const deep = new URLSearchParams(location.search).get('property');
+  if (deep && findProp(deep)) openProperty(deep, true);
 }
 
-function reviewBadge(p){const r=p.property_reviews||[];if(!r.length)return '<div class="review-badge empty">New · No customer reviews yet</div>';const avg=r.reduce((a,x)=>a+Number(x.rating),0)/r.length;return `<div class="review-badge"><b>★ ${avg.toFixed(1)}</b><span>${r.length} verified review${r.length===1?'':'s'}</span></div>`}
-function reviewSection(p){const r=p.property_reviews||[];return `<section class="property-reviews"><div class="reviews-head"><div><span class="kicker">Customer feedback</span><h3>${r.length?'Verified property reviews':'Be the first verified reviewer'}</h3></div><button onclick="openReviewForm('${p.id}')">Write a review</button></div>${r.length?`<div class="review-cards">${r.slice(0,6).map(x=>`<article><div><b>${'★'.repeat(x.rating)}${'☆'.repeat(5-x.rating)}</b><span>${new Date(x.created_at).toLocaleDateString()}</span></div><h4>${esc(x.title||'Customer review')}</h4><p>${esc(x.body)}</p><small>Verified stay or tenancy · ${esc(x.reviewer_name)}</small>${x.owner_response?`<aside><b>Agent response</b>${esc(x.owner_response)}</aside>`:''}</article>`).join('')}</div>`:`<p class="no-reviews">Reviews can only be submitted with a one-time token issued after a genuine customer relationship.</p>`}</section>`}
-function openReviewForm(id){const p=allProperties.find(x=>String(x.id)===String(id));if(!p)return;openModal(`<form class="public-review-form" onsubmit="submitPropertyReview(event,'${p.id}')"><span class="kicker">Verified reviews only</span><h2>Review ${esc(p.title)}</h2><p>Enter the one-time token supplied after your real stay or tenancy. Demo properties cannot receive genuine reviews.</p><label>Review token<input name="token" required/></label><div class="form-row"><label>Your name<input name="reviewer_name" required/></label><label>Rating<select name="rating" required><option value="5">5 — Exceptional</option><option value="4">4 — Very good</option><option value="3">3 — Good</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label></div><label>Review title<input name="title" maxlength="100"/></label><label>Your experience<textarea name="body" minlength="20" maxlength="1500" required></textarea></label><button>Submit verified review →</button></form>`)}
-async function submitPropertyReview(e,id){e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget)),p=allProperties.find(x=>String(x.id)===String(id));if(p.is_demo)return toast('Demo properties cannot receive genuine reviews.');if(LIVE){const{data,error}=await db.functions.invoke('submit-review',{body:f});if(error||data?.error)return toast(data?.error||error.message)}else{const invites=JSON.parse(localStorage.getItem('nestify_v2_review_invites')||'[]'),invite=invites.find(x=>x.property_id===id&&x.token===f.token&&!x.used_at&&new Date(x.expires_at)>new Date());if(!invite)return toast('That review token is invalid or expired.');invite.used_at=new Date().toISOString();localStorage.setItem('nestify_v2_review_invites',JSON.stringify(invites));const all=JSON.parse(localStorage.getItem('nestify_v2_reviews')||'[]'),review={id:crypto.randomUUID(),property_id:id,invitation_id:invite.id,reviewer_name:f.reviewer_name,rating:Number(f.rating),title:f.title,body:f.body,created_at:new Date().toISOString()};all.push(review);localStorage.setItem('nestify_v2_reviews',JSON.stringify(all));p.property_reviews=p.property_reviews||[];p.property_reviews.push(review)}toast('Verified review published');closeModal();renderListings()}
+async function loadRanges() {
+  S.ranges = {};
+  const ids = S.live.filter(p => p.kind === 'stay').map(p => p.id);
+  if (!LIVE || !ids.length) return;
+  const { data, error } = await db.rpc('unavailable_ranges', { p_ids: ids });
+  if (error) { console.error(error); return; }
+  (data || []).forEach(r => { (S.ranges[r.property_id] ||= []).push({ s: r.start_date, e: r.end_date }); });
+}
 
-function requestForm(p){const note=p.is_demo?'<div class="demo-form-note">Demo form · submission stays on this device</div>':'';if(p.kind==='stay')return `${note}<form class="request-card" onsubmit="submitBooking(event,'${p.id}')"><h3>Request this stay</h3><div class="form-row"><input name="checkin" type="date" required/><input name="checkout" type="date" required/></div><div class="form-row"><input name="guests" type="number" min="1" max="${p.max_guests||20}" placeholder="Guests" required/><input name="phone" placeholder="Phone" required/></div><input name="name" placeholder="Full name" required/><input name="email" type="email" placeholder="Email" required/><textarea name="message" placeholder="Message to the agent (optional)"></textarea><button>Send booking request</button></form>`;return `${note}<form class="request-card" onsubmit="submitEnquiry(event,'${p.id}')"><h3>Ask about this home</h3><input name="name" placeholder="Full name" required/><input name="email" type="email" placeholder="Email" required/><input name="phone" placeholder="Phone" required/><textarea name="message" required>Hi, is this property still available? I would like to arrange a viewing.</textarea><button>Contact the listing agent</button></form>`}
-async function submitEnquiry(e,id){e.preventDefault();const p=allProperties.find(x=>String(x.id)===String(id)),f=Object.fromEntries(new FormData(e.currentTarget));const row={property_id:p.id,agent_id:p.agent_id,sender_name:f.name,sender_email:f.email,sender_phone:f.phone,message:f.message,status:'new'};if(LIVE){const{error}=await db.from('enquiries').insert(row);if(error)return toast('Could not send enquiry. Please try again.')}else{const a=JSON.parse(localStorage.getItem('nestify_v2_enquiries')||'[]');a.push({...row,id:crypto.randomUUID(),created_at:new Date().toISOString()});localStorage.setItem('nestify_v2_enquiries',JSON.stringify(a));if(!p.is_demo)addDemoNotification(p.agent_id,'New property enquiry',`${f.name} asked about ${p.title}`,'enquiry')}e.currentTarget.innerHTML=p.is_demo?'<h3>Demo complete</h3><p class="modal-sub">This example was stored only in your browser. No real agent was contacted.</p>':'<h3>Enquiry sent</h3><p class="modal-sub">The responsible agent can now see your message.</p>'}
-async function submitBooking(e,id){e.preventDefault();const p=allProperties.find(x=>String(x.id)===String(id)),f=Object.fromEntries(new FormData(e.currentTarget)),start=new Date(f.checkin),end=new Date(f.checkout),nights=Math.ceil((end-start)/86400000);if(!Number.isFinite(nights)||nights<(p.min_nights||1))return toast(`Choose at least ${p.min_nights||1} night(s).`);const row={property_id:p.id,agent_id:p.agent_id,guest_name:f.name,guest_email:f.email,guest_phone:f.phone,check_in:f.checkin,check_out:f.checkout,guests:Number(f.guests),message:f.message,total_quote:nights*Number(p.nightly_price),status:'new'};if(LIVE){const{error}=await db.from('booking_requests').insert(row);if(error)return toast('Those dates could not be requested.')}else{const a=JSON.parse(localStorage.getItem('nestify_v2_bookings')||'[]');a.push({...row,id:crypto.randomUUID(),created_at:new Date().toISOString()});localStorage.setItem('nestify_v2_bookings',JSON.stringify(a));if(!p.is_demo)addDemoNotification(p.agent_id,'New booking request',`${f.name} requested ${nights} night(s) at ${p.title}`,'booking')}e.currentTarget.innerHTML=p.is_demo?`<h3>Demo complete</h3><p class="modal-sub">Example quote: ${money(row.total_quote)}. No booking or agent contact occurred.</p>`:`<h3>Request sent</h3><p class="modal-sub">Estimated total: ${money(row.total_quote)}. The agent must confirm availability before any payment.</p>`}
-function addDemoNotification(user,title,body,type){const a=JSON.parse(localStorage.getItem('nestify_v2_notifications')||'[]');a.push({id:crypto.randomUUID(),user_id:user,title,body,type,is_read:false,created_at:new Date().toISOString()});localStorage.setItem('nestify_v2_notifications',JSON.stringify(a))}
+async function loadSettings() {
+  if (!LIVE) return;
+  const { data } = await db.from('platform_settings').select('key,value').in('key', ['support_contact', 'marketplace_status']);
+  (data || []).forEach(row => {
+    if (row.key === 'support_contact') {
+      S.support = { ...S.support, ...Object.fromEntries(Object.entries(row.value || {}).filter(([, v]) => v)) };
+      const a = $('#footerMail');
+      if (a) { a.href = 'mailto:' + S.support.email; a.textContent = S.support.email; }
+      const w = $('#footerWa');
+      if (w && S.support.phone) { w.href = waLink(S.support.phone, 'Hello Nestify, I need help with '); w.hidden = false; }
+    }
+    if (row.key === 'marketplace_status' && row.value && row.value.maintenance) {
+      const n = $('#notice');
+      n.textContent = 'Nestify is under short maintenance. You can browse, but enquiries may be delayed.';
+      n.classList.remove('hidden');
+    }
+  });
+}
 
+function updateStats() {
+  $('#liveCount').textContent = S.live.length;
+  $('#countyCount').textContent = new Set(S.live.map(p => p.county)).size;
+  $('#dataMode').textContent = !LIVE ? 'Listings are not connected yet.' : S.error ? 'Listings could not be loaded.'
+    : S.live.length ? 'Every live listing shows who listed it and when it was updated.' : 'No live listings yet. Agents are getting started.';
+}
 
+/* ---------- Filtering ---------- */
+const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+function isFree(id, checkin, checkout) {
+  const last = addDays(checkout, -1);
+  return !(S.ranges[id] || []).some(r => r.s <= last && r.e >= checkin);
+}
+function matches(p) {
+  const f = S.f;
+  if (p.kind !== S.mode) return false;
+  if (f.county && p.county !== f.county) return false;
+  if (f.type && p.property_type !== f.type) return false;
+  if (f.q) {
+    const hay = [p.title, p.locality, p.county, p.property_type, p.address_text, ...(p.amenities || [])].join(' ').toLowerCase();
+    if (!f.q.toLowerCase().split(/\s+/).every(w => hay.includes(w))) return false;
+  }
+  for (const a of f.amenities) if (!(p.amenities || []).includes(a)) return false;
+  if (S.mode === 'rent') {
+    if (f.budget && Number(p.monthly_price) > Number(f.budget)) return false;
+    if (f.beds && Number(p.bedrooms) < Number(f.beds)) return false;
+  } else {
+    if (f.budget && Number(p.nightly_price) > Number(f.budget)) return false;
+    if (f.guests && Number(p.max_guests) < Number(f.guests)) return false;
+    if (f.checkin && f.checkout && f.checkout > f.checkin && !isFree(p.id, f.checkin, f.checkout)) return false;
+  }
+  return true;
+}
+function sorter(a, b) {
+  if (S.sort === 'low') return priceOf(a) - priceOf(b);
+  if (S.sort === 'high') return priceOf(b) - priceOf(a);
+  if (S.sort === 'featured' && b.tier !== a.tier) return b.tier - a.tier;
+  return new Date(b.updated_at) - new Date(a.updated_at);
+}
+function currentResults() {
+  const hasLive = S.live.some(p => p.kind === S.mode);
+  const pool = hasLive ? S.live : S.demos;
+  return { items: pool.filter(matches).sort(sorter), sample: !hasLive };
+}
 
-function renderSignature(){const grid=$('#signatureGrid');if(!grid)return;const items=(allProperties.filter(p=>p.signature).length?allProperties.filter(p=>p.signature):allProperties).slice(0,3);grid.innerHTML=items.map((p,i)=>`<article class="signature-card ${i===0?'lead':''}" onclick="openProperty('${p.id}')"><img src="${esc(primaryMedia(p))}" alt="${esc(p.title)}"/><div><span>${p.is_demo?'DEMO EDIT':'NESTIFY PRIVÉ'} · ${esc(p.county)}</span><h3>${esc(p.title)}</h3><p>${money(price(p))} /${p.kind==='stay'?'night':'month'}</p><button>Explore residence →</button></div></article>`).join('')}
-function updatePlanner(){const value=Number($('#plannerValue')?.value||40000000),deposit=Number($('#plannerDeposit')?.value||20),rate=Number($('#plannerRate')?.value||13)/100/12,months=Number($('#plannerTerm')?.value||20)*12,loan=value*(1-deposit/100),monthly=rate?loan*(rate*Math.pow(1+rate,months))/(Math.pow(1+rate,months)-1):loan/months;if($('#plannerValueLabel')){$('#plannerValueLabel').textContent=money(value);$('#plannerDepositLabel').textContent=deposit+'%';$('#plannerMonthly').textContent=money(Math.round(monthly));$('#plannerLoan').textContent=money(loan);$('#plannerCash').textContent=money(value-loan)}}
-function openConcierge(){openModal(`<form class="concierge-form" onsubmit="submitConcierge(event)"><span class="kicker">Nestify Privé concierge</span><h2>Build your private property brief</h2><p>Tell premium agents what you are looking for. In Preview Mode this brief remains on your device.</p><div class="form-row"><label>Full name<input name="name" required/></label><label>Phone<input name="phone" required/></label></div><div class="form-row"><label>Preferred county<select name="county" required><option value="">Choose county</option>${COUNTIES.map(c=>`<option>${esc(c)}</option>`).join('')}</select></label><label>Property category<select name="type" required><option>Luxury house</option><option>Villa</option><option>Penthouse</option><option>Serviced apartment</option><option>Boutique hotel / resort</option><option>Premium BnB</option></select></label></div><div class="form-row"><label>Minimum budget (KSh)<input name="min_budget" type="number" min="0" required/></label><label>Maximum budget (KSh)<input name="max_budget" type="number" min="0" required/></label></div><label>Non-negotiables<textarea name="requirements" minlength="20" placeholder="Areas, bedrooms, move-in dates, privacy, pool, staff accommodation…" required></textarea></label><label class="consent-line"><input name="consent" type="checkbox" required/> I agree that this brief may be shared with relevant registered agents.</label><button>Save private brief →</button></form>`)}
-function submitConcierge(e){e.preventDefault();const row={id:crypto.randomUUID(),...Object.fromEntries(new FormData(e.currentTarget)),created_at:new Date().toISOString(),status:'new'};const a=JSON.parse(localStorage.getItem('nestify_v2_concierge')||'[]');a.push(row);localStorage.setItem('nestify_v2_concierge',JSON.stringify(a));e.currentTarget.innerHTML='<div class="concierge-success"><b>Private brief created</b><p>Your preferences are saved on this device. Connect Supabase messaging before using this for real customer matching.</p><button type="button" onclick="closeModal()">Done</button></div>'}
-function openGallery(id,index=0){const p=allProperties.find(x=>String(x.id)===String(id));if(!p)return;const images=(p.media||[]).filter(m=>(m.kind||'image')==='image');const img=images[index]||images[0];openModal(`<div class="lightbox"><button onclick="openProperty('${p.id}')">← Back to property</button><img src="${esc(img.public_url)}" alt="${esc(img.alt_text||p.title)}"/><div>${images.map((m,i)=>`<button class="${i===index?'active':''}" onclick="openGallery('${p.id}',${i})"><img src="${esc(m.public_url)}" alt="Image ${i+1}"/></button>`).join('')}</div><p>${index+1} of ${images.length} · ${esc(p.title)}</p></div>`)}
+/* ---------- Rendering ---------- */
+function cardHTML(p) {
+  const r = ratingOf(p);
+  const sample = p.is_demo;
+  const tag = sample ? '<span class="tag sample">Sample listing</span>' : p.tier >= 3 ? '<span class="tag top">Signature</span>' : `<span class="tag">${p.kind === 'stay' ? 'Short stay' : 'For rent'}</span>`;
+  const saved = S.saved.has(String(p.id)), cmp = S.compare.has(String(p.id));
+  return `<article class="card">
+    <div class="card-media">${cover(p) ? `<img src="${esc(cover(p))}" alt="${esc(p.title)}" loading="lazy" onerror="this.remove()"/>` : ''}${tag}
+      <div class="card-btns">
+        <button class="icon-btn" data-act="compare" data-id="${esc(p.id)}" aria-pressed="${cmp}" aria-label="${cmp ? 'Remove from comparison' : 'Add to comparison'}">${icon('compare')}</button>
+        <button class="icon-btn heart" data-act="save" data-id="${esc(p.id)}" aria-pressed="${saved}" aria-label="${saved ? 'Remove from saved' : 'Save property'}">${icon('heart')}</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="price"><b>${money(priceOf(p))}</b><span>${p.kind === 'stay' ? 'a night' : 'a month'}</span></div>
+      <h3><a href="?property=${encodeURIComponent(p.id)}" data-act="open" data-id="${esc(p.id)}">${esc(p.title)}</a></h3>
+      <p class="loc">${esc(p.locality)}, ${esc(p.county)}</p>
+      <ul class="facts"><li>${icon('bed')}${p.bedrooms} ${p.bedrooms == 1 ? 'bed' : 'beds'}</li><li>${icon('bath')}${p.bathrooms} ${p.bathrooms == 1 ? 'bath' : 'baths'}</li>${p.kind === 'stay' ? `<li>${icon('users')}Up to ${p.max_guests}</li>` : p.size_sqm ? `<li>${icon('area')}${p.size_sqm} m²</li>` : ''}</ul>
+      <div class="card-foot"><span class="rating">${r ? icon('star') + r.avg.toFixed(1) + ` <span class="muted">(${r.n})</span>` : '<span class="muted">New</span>'}</span><span>${sample ? 'Not a real listing' : 'Updated ' + esc(dateText(p.updated_at))}</span></div>
+    </div>
+  </article>`;
+}
 
-function loadMoreProperties(){visibleLimit+=8;renderListings()}
-function filterAmenity(name,el){activeAmenity=name;$('#locationFilter').value='';$$('.amenity-filter-bar button').forEach(x=>x.classList.remove('active'));el.classList.add('active');applyFilters()}
-function toggleCompare(e,id){if(e)e.stopPropagation();id=String(id);if(compare.has(id))compare.delete(id);else{if(compare.size>=3)return toast('Compare up to 3 properties at a time.');compare.add(id)}localStorage.setItem('nestify_v2_compare',JSON.stringify([...compare]));renderCompareBar();renderListings();toast(compare.has(id)?'Added to comparison':'Removed from comparison')}
-function renderCompareBar(){compare=new Set([...compare].filter(id=>allProperties.length===0||allProperties.some(p=>String(p.id)===id)));const bar=$('#compareBar');if(!bar)return;bar.classList.toggle('hidden',compare.size===0);$('#compareCount').textContent=`${compare.size} selected`;$('#compareThumbs').innerHTML=[...compare].map(id=>{const p=allProperties.find(x=>String(x.id)===id);return p?`<img src="${esc(primaryMedia(p))}" title="${esc(p.title)}" alt=""/>`:''}).join('')}
-function clearCompare(){compare.clear();localStorage.setItem('nestify_v2_compare','[]');renderCompareBar();renderListings()}
-function openCompare(){const items=[...compare].map(id=>allProperties.find(p=>String(p.id)===id)).filter(Boolean);if(items.length<2)return toast('Choose at least 2 properties to compare.');const row=(label,get)=>`<div class="compare-row"><b>${label}</b>${items.map(p=>`<span>${get(p)}</span>`).join('')}</div>`;openModal(`<div class="compare-modal" style="--compare-cols:${items.length}"><span class="kicker">Side-by-side</span><h2>Compare properties</h2><div class="compare-table"><div class="compare-row compare-head"><b></b>${items.map(p=>`<span><img src="${esc(primaryMedia(p))}" alt=""/><strong>${esc(p.title)}</strong><small>${esc(p.locality)}, ${esc(p.county)}</small></span>`).join('')}</div>${row('Price',p=>money(price(p))+'/'+(p.kind==='stay'?'night':'month'))}${row('Space',p=>`${p.bedrooms} bed · ${p.bathrooms} bath${p.size_sqm?' · '+p.size_sqm+' m²':''}`)}${row('Type',p=>esc(p.property_type))}${row('Amenities',p=>esc((p.amenities||[]).slice(0,5).join(', ')))}${row('Status',p=>p.is_demo?'Demo preview':'Approved listing')}</div></div>`)}
-function trackRecently(id){id=String(id);recentlyViewed=[id,...recentlyViewed.filter(x=>String(x)!==id)].slice(0,5);localStorage.setItem('nestify_v2_recent',JSON.stringify(recentlyViewed));renderRecentlyViewed()}
-function renderRecentlyViewed(){const section=$('#recentlySection');if(!section)return;const items=recentlyViewed.map(id=>allProperties.find(p=>String(p.id)===String(id))).filter(Boolean);section.classList.toggle('hidden',!items.length);$('#recentlyGrid').innerHTML=items.map(p=>`<button onclick="openProperty('${p.id}')"><img src="${esc(primaryMedia(p))}" alt=""/><span><b>${esc(p.title)}</b><small>${esc(p.locality)} · ${money(price(p))}</small></span><i>→</i></button>`).join('')}
-function clearRecentlyViewed(){recentlyViewed=[];localStorage.setItem('nestify_v2_recent','[]');renderRecentlyViewed()}
-async function shareProperty(id){const p=allProperties.find(x=>String(x.id)===String(id));if(!p)return;const url=new URL(location.href);url.searchParams.set('property',id);url.hash='properties';const data={title:p.title,text:`${p.title} on Nestify${p.is_demo?' (demo preview)':''}`,url:url.href};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(url.href);toast('Property link copied')}}catch(err){if(err.name!=='AbortError')toast('Sharing was not available')}}
+function render() {
+  const rent = S.mode === 'rent';
+  $('#listHeading').textContent = rent ? 'Rentals across Kenya' : 'Short stays across Kenya';
+  $('#listSub').textContent = rent ? 'Monthly rentals from independent agents and agencies.' : 'Nightly stays from hosts, with unavailable dates shown on each listing.';
+  $('#filters').className = 'filters mode-' + S.mode;
+  $$('#modeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
+  $('#grid').classList.toggle('is-list', S.view === 'list');
 
-function clearSearch(){activeAmenity='';$('#locationFilter').value='';$('#countyFilter').value='';$('#typeFilter').value='';$('#budgetFilter').value='';$('#bedFilter').value='';$('#guestFilter').value='';$('#nightBudgetFilter').value='';applyFilters()}
-function quickFilter(county){$('#countyFilter').value=county;activeAmenity='';applyFilters();$('#properties').scrollIntoView({behavior:'smooth'})}
-function quickAmenity(name){activeAmenity=name;$('#locationFilter').value=name;applyFilters();$('#properties').scrollIntoView({behavior:'smooth'})}
-function collectionFilter(nextMode,type,amenity){setMode(nextMode);$('#typeFilter').value=type;activeAmenity=amenity;$('#locationFilter').value=amenity;applyFilters();$('#properties').scrollIntoView({behavior:'smooth'})}
-function setListingView(view,el){listingView=view;$('#listingGrid').classList.toggle('list-view',view==='list');$$('.view-switch').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
+  const { items, sample } = currentResults();
+  const shown = items.slice(0, S.limit);
+  const noun = rent ? 'rental' : 'stay';
+  const bits = [S.f.county && ' in ' + esc(S.f.county), S.f.q && ' matching “' + esc(S.f.q) + '”'].filter(Boolean).join('');
+  $('#resultNote').innerHTML = `<b>${items.length}</b> ${noun}${items.length === 1 ? '' : 's'}${bits}`
+    + (sample ? `<span class="sample">There are no live ${rent ? 'rentals' : 'stays'} yet. These are labelled sample listings that show how Nestify works, and you cannot contact anyone through them.</span>` : '');
 
-function openSafety(){openModal(`<div class="safety-body"><span class="kicker">Protect yourself</span><h2>Before you pay</h2><ul><li>View the property or ask a trusted person to view it.</li><li>Confirm the agent’s identity and authority to offer the home.</li><li>Check that payment recipient details match the agreement.</li><li>Read the lease or booking terms before sending money.</li><li>Report pressure, inconsistent details or requests for unusual payment methods.</li></ul></div>`)}
-function openModal(html){$('#modalBody').innerHTML=html;$('#modal').classList.add('open');document.body.style.overflow='hidden'}function closeModal(){$('#modal').classList.remove('open');document.body.style.overflow=''}function backdropClose(e){if(e.target===$('#modal'))closeModal()}function toggleMenu(){$('#mobileMenu').classList.toggle('open')}function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600)}function dateText(d){const days=Math.max(0,Math.floor((Date.now()-new Date(d))/86400000));return days===0?'today':days===1?'yesterday':`${days} days ago`}
-const deepProperty=new URLSearchParams(location.search).get('property');if(deepProperty)setTimeout(()=>openProperty(deepProperty),500);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();$('#mobileMenu').classList.remove('open')}});init();
+  if (!items.length) {
+    $('#grid').innerHTML = S.error && !S.live.length
+      ? `<div class="empty"><h3>Listings did not load</h3><p>Check your connection and try again.</p><button class="btn" data-act="reload">Try again</button></div>`
+      : `<div class="empty"><h3>No ${noun}s match those filters</h3><p>Try a wider budget, another county or fewer amenities.</p><button class="btn" data-act="clear">Clear filters</button></div>`;
+  } else {
+    $('#grid').innerHTML = shown.map(cardHTML).join('');
+  }
+  const more = items.length - shown.length;
+  $('#moreBtn').classList.toggle('hidden', more <= 0);
+  $('#moreBtn').textContent = `Show ${Math.min(more, 9)} more of ${more}`;
+  $('#savedCount').textContent = S.saved.size;
+}
+
+function fillBudgets() {
+  const opts = BUDGETS[S.mode].map(v => `<option value="${v}">Up to ${money(v)}</option>`).join('');
+  $('#fBudget').innerHTML = '<option value="">Any budget</option>' + opts;
+  $('#fNight').innerHTML = '<option value="">Any budget</option>' + opts;
+  $('#hBudget').innerHTML = '<option value="">any budget</option>' + BUDGETS[S.mode].map(v => `<option value="${v}">${money(v)}${S.mode === 'rent' ? ' a month' : ' a night'}</option>`).join('');
+}
+function syncInputs() {
+  const f = S.f;
+  $('#fQ').value = f.q; $('#fCounty').value = f.county; $('#fType').value = f.type;
+  $('#fBudget').value = S.mode === 'rent' ? f.budget : ''; $('#fNight').value = S.mode === 'stay' ? f.budget : '';
+  $('#fBeds').value = f.beds; $('#fGuests').value = f.guests; $('#fIn').value = f.checkin; $('#fOut').value = f.checkout;
+  $('#hMode').value = S.mode; $('#hCounty').value = f.county; $('#hBudget').value = f.budget;
+  $$('#amenityChips .chip').forEach(c => c.setAttribute('aria-pressed', String(f.amenities.has(c.dataset.a))));
+}
+function setMode(mode) {
+  if (mode === S.mode) return;
+  S.mode = mode; S.f.budget = ''; S.limit = 9;
+  fillBudgets(); syncInputs(); render();
+}
+function readFilters() {
+  const f = S.f;
+  f.q = $('#fQ').value.trim(); f.county = $('#fCounty').value; f.type = $('#fType').value;
+  f.budget = S.mode === 'rent' ? $('#fBudget').value : $('#fNight').value;
+  f.beds = $('#fBeds').value; f.guests = $('#fGuests').value; f.checkin = $('#fIn').value; f.checkout = $('#fOut').value;
+  if (f.checkin) $('#fOut').min = addDays(f.checkin, 1);
+  S.limit = 9; render();
+}
+
+/* ---------- Property dialog ---------- */
+function starsHTML(n) { return `<span class="stars" role="img" aria-label="${n} out of 5">${[1, 2, 3, 4, 5].map(i => icon('star', i > n ? 'off' : '')).join('')}</span>`; }
+
+function reviewsHTML(p) {
+  const rs = p.property_reviews || [], r = ratingOf(p);
+  const list = rs.length ? rs.slice(0, 8).map(x => `<article class="review"><header><span>${starsHTML(Number(x.rating))}</span><span>${esc(fmtDate(x.created_at))}</span></header>
+      <h4>${esc(x.title || 'Guest review')}</h4><p>${esc(x.body)}</p><small class="muted">${esc(x.reviewer_name)}</small>
+      ${x.owner_response ? `<aside><b>Reply from the agent</b><br/>${esc(x.owner_response)}</aside>` : ''}</article>`).join('')
+    : '<p class="muted" style="margin-top:.8rem">No reviews yet. If you have rented or stayed here, tell others what it was like.</p>';
+  return `<section class="reviews" id="reviews" aria-label="Reviews">
+    <div class="reviews-head"><h3 style="margin:0">${r ? `${starsHTML(Math.round(r.avg))} ${r.avg.toFixed(1)} from ${r.n} review${r.n === 1 ? '' : 's'}` : 'Reviews'}</h3>
+      ${p.is_demo ? '' : '<button class="btn btn-ghost btn-sm" data-act="review-toggle">Write a review</button>'}</div>
+    <form class="review-form hidden" data-form="review" data-id="${esc(p.id)}" novalidate>
+      <p class="small muted">Reviews are posted publicly with your name. Your email stays private and is only used to stop duplicate reviews.</p>
+      <div class="row2"><label class="fld"><span>Your name</span><input name="name" required minlength="2" maxlength="80" autocomplete="name"/></label>
+        <label class="fld"><span>Email (private)</span><input name="email" type="email" required autocomplete="email"/></label></div>
+      <fieldset class="pref"><legend>Your rating</legend><div class="star-input">${[5, 4, 3, 2, 1].map(i => `<input type="radio" name="rating" id="rt${i}" value="${i}" ${i === 5 ? 'checked' : ''}/><label for="rt${i}" title="${i} star${i > 1 ? 's' : ''}"><span class="sr">${i} star${i > 1 ? 's' : ''}</span>${icon('star')}</label>`).join('')}</div></fieldset>
+      <label class="fld"><span>Headline (optional)</span><input name="title" maxlength="100"/></label>
+      <label class="fld"><span>Your review</span><textarea name="body" required minlength="20" maxlength="1500" placeholder="What was it like? Mention the condition, the agent and anything others should know."></textarea><small>At least 20 characters.</small></label>
+      <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"/></label></div>
+      <button class="btn">Post review</button><p class="form-msg" role="alert"></p>
+    </form>
+    <div id="reviewList">${list}</div></section>`;
+}
+
+function contactFields() {
+  return `<label class="fld"><span>Full name</span><input name="name" required minlength="2" maxlength="120" autocomplete="name"/></label>
+    <label class="fld"><span>WhatsApp number</span><input name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="0712 345 678"/><small>The agent can reply to this number.</small></label>
+    <label class="fld"><span>Email</span><input name="email" type="email" required autocomplete="email"/></label>
+    <fieldset class="pref"><legend>Reply to me by</legend><div class="pref-opts">
+      <label><input type="radio" name="pref" value="whatsapp" checked/><span>WhatsApp</span></label>
+      <label><input type="radio" name="pref" value="email"/><span>Email</span></label>
+      <label><input type="radio" name="pref" value="phone"/><span>Phone call</span></label></div></fieldset>`;
+}
+function consentField(who) {
+  return `<label class="check"><input type="checkbox" name="consent" required/><span>I agree that ${who} may contact me on the WhatsApp number and email above about this property.</span></label>`;
+}
+
+function contactHTML(p) {
+  if (p.is_demo) return `<aside class="contact"><h3>Sample listing</h3><p class="demo-note">This is an example that shows how a Nestify listing looks. It is not a real property, so there is nobody to contact.</p></aside>`;
+  if (p.kind === 'stay') {
+    return `<form class="contact" data-form="booking" data-id="${esc(p.id)}" novalidate><h3>Request this stay</h3>
+      <p class="small muted">${money(p.nightly_price)} a night${p.min_nights > 1 ? `, minimum ${p.min_nights} nights` : ''}. Nothing is charged here. The host confirms dates with you directly.</p>
+      <div class="row2 keep"><label class="fld"><span>Check in</span><input name="checkin" type="date" required min="${new Date().toISOString().slice(0, 10)}"/></label><label class="fld"><span>Check out</span><input name="checkout" type="date" required/></label></div>
+      <label class="fld"><span>Guests</span><input name="guests" type="number" required min="1" max="${p.max_guests || 20}" value="1"/></label>
+      <div class="total"><span>Estimated total</span><b data-total>${money(0)}</b></div>
+      ${contactFields()}
+      <label class="fld"><span>Message (optional)</span><textarea name="message" rows="3"></textarea></label>
+      ${consentField('the host')}
+      <button class="btn btn-block">Send booking request</button><p class="form-msg" role="alert"></p></form>`;
+  }
+  return `<form class="contact" data-form="enquiry" data-id="${esc(p.id)}" novalidate><h3>Message the agent</h3>
+    <p class="small muted">The agent replies to you directly, so you can talk and arrange a viewing outside Nestify.</p>
+    ${contactFields()}
+    <label class="fld"><span>Message</span><textarea name="message" required minlength="5" rows="4">Hi, is this property still available? I would like to arrange a viewing.</textarea></label>
+    ${consentField('this agent')}
+    <button class="btn btn-block">Send enquiry</button><p class="form-msg" role="alert"></p></form>`;
+}
+
+function availabilityHTML(p) {
+  if (p.kind !== 'stay' || p.is_demo) return '';
+  const ranges = (S.ranges[p.id] || []).filter(r => r.e >= new Date().toISOString().slice(0, 10)).sort((a, b) => a.s.localeCompare(b.s));
+  if (!ranges.length) return `<h3>Availability</h3><p class="avail free">No dates are blocked right now. Pick any dates in the request form.</p>`;
+  return `<h3>Availability</h3><p class="avail">Already taken: ${ranges.slice(0, 8).map(r => r.s === r.e ? fmtDate(r.s) : `${fmtDate(r.s)} to ${fmtDate(r.e)}`).map(esc).join('; ')}${ranges.length > 8 ? ' and more' : ''}.</p>`;
+}
+
+function propertyHTML(p) {
+  const imgs = images(p), video = (p.media || []).find(m => m.kind === 'video');
+  const shown = imgs.slice(0, 3);
+  const gallery = imgs.length
+    ? `<div class="gallery ${shown.length === 1 ? 'one' : shown.length === 2 ? 'two' : ''}">${shown.map((m, i) => `<button type="button" data-act="lightbox" data-id="${esc(p.id)}" data-i="${i}" aria-label="Open photo ${i + 1} of ${imgs.length}"><img src="${esc(m.public_url)}" alt="${esc(m.alt_text || p.title)}" onerror="this.style.visibility='hidden'"/>${i === shown.length - 1 && imgs.length > shown.length ? `<span class="more-photos">+${imgs.length - shown.length} photos</span>` : ''}</button>`).join('')}</div>`
+    : '<div class="gallery-empty">No photos yet</div>';
+  const initials = (p.agent_name || 'A').split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase();
+  return `${gallery}<div class="detail"><div>
+    <div class="detail-head"><span class="badge ${p.is_demo ? 'warn' : ''}">${p.is_demo ? 'Sample listing' : p.kind === 'stay' ? 'Short stay' : 'For rent'}</span>
+      <h2 id="modalTitle">${esc(p.title)}</h2><p class="loc">${icon('pin')} ${esc([...new Set([p.address_text, p.locality, p.county].filter(Boolean).flatMap(x => String(x).split(',').map(y => y.trim())))].join(', '))}</p></div>
+    <div class="price" style="margin-top:.8rem"><b style="font-size:1.8rem">${money(priceOf(p))}</b><span>${p.kind === 'stay' ? 'a night' : 'a month'}</span></div>
+    <div class="detail-actions"><button class="btn btn-ghost btn-sm" data-act="share" data-id="${esc(p.id)}">${icon('share')} Share</button>
+      <button class="btn btn-ghost btn-sm" data-act="save" data-id="${esc(p.id)}" aria-pressed="${S.saved.has(String(p.id))}">${icon('heart')} ${S.saved.has(String(p.id)) ? 'Saved' : 'Save'}</button>
+      ${p.is_demo ? '' : `<button class="btn btn-ghost btn-sm" data-act="report" data-id="${esc(p.id)}">${icon('flag')} Report this listing</button>`}</div>
+    <ul class="facts-row"><li>${icon('bed')}${p.bedrooms} ${p.bedrooms == 1 ? 'bedroom' : 'bedrooms'}</li><li>${icon('bath')}${p.bathrooms} ${p.bathrooms == 1 ? 'bathroom' : 'bathrooms'}</li>${p.size_sqm ? `<li>${icon('area')}${p.size_sqm} m²</li>` : ''}${p.kind === 'stay' ? `<li>${icon('users')}Up to ${p.max_guests} guests</li>` : ''}</ul>
+    <h3>About this property</h3><p class="body">${esc(p.description)}</p>
+    ${(p.amenities || []).length ? `<h3>What it offers</h3><div class="amen-list">${p.amenities.map(a => `<span class="badge">${esc(a)}</span>`).join('')}</div>` : ''}
+    ${video ? `<h3>Video tour</h3><video controls preload="metadata" src="${esc(video.public_url)}" style="width:100%;border-radius:var(--r-md)"></video>` : ''}
+    ${availabilityHTML(p)}
+    <h3>Location</h3><iframe class="map-frame" title="Map of ${esc(p.title)}" loading="lazy" src="https://www.google.com/maps?q=${encodeURIComponent(p.latitude + ',' + p.longitude)}&z=15&output=embed"></iframe>
+    <p class="small" style="margin-top:.5rem"><a href="https://www.google.com/maps?q=${encodeURIComponent(p.latitude + ',' + p.longitude)}" target="_blank" rel="noopener">Open in Google Maps ${icon('external')}</a></p>
+    <div class="agent-box"><span class="avatar">${esc(initials)}</span><div><b>${p.is_demo ? 'Nestify sample' : 'Listed by ' + esc(p.agent_name || 'a registered agent')}</b>${!p.is_demo && p.agency_name ? `<br/>${esc(p.agency_name)}` : ''}${p.agent_verified ? ' <span class="badge ok">Verified agent</span>' : ''}
+      <p>${p.is_demo ? 'Not a real agent.' : 'Last updated ' + esc(dateText(p.updated_at)) + '. Always view the property and confirm the agent before you pay.'}</p></div></div>
+    ${reviewsHTML(p)}
+  </div>${contactHTML(p)}</div>`;
+}
+
+function openModal(html, narrow = false) {
+  const m = $('#modal');
+  $('#modalBody').innerHTML = html;
+  m.classList.toggle('narrow', narrow);
+  hydrateIcons(m);
+  if (!m.open) { S.lastFocus = document.activeElement; m.showModal(); }
+  m.scrollTop = 0;
+}
+function closeModal() { const m = $('#modal'); if (m.open) m.close(); }
+
+function openProperty(id, fromLink = false) {
+  const p = findProp(id);
+  if (!p) return;
+  S.recent = [String(p.id), ...S.recent.filter(x => x !== String(p.id))].slice(0, 6);
+  writeLS('nestify_recent', S.recent);
+  openModal(propertyHTML(p));
+  const url = new URL(location.href); url.searchParams.set('property', p.id);
+  history.replaceState(null, '', url);
+  document.title = p.title + ' | Nestify';
+  renderRecent();
+}
+
+/* ---------- Forms ---------- */
+async function submitEnquiry(form) {
+  const p = findProp(form.dataset.id), fd = new FormData(form), msg = $('.form-msg', form), btn = $('button.btn', form);
+  msg.textContent = '';
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const { error } = await db.from('enquiries').insert({
+    property_id: p.id, agent_id: p.agent_id, sender_name: fd.get('name'), sender_email: fd.get('email'), sender_phone: fd.get('phone'),
+    message: fd.get('message'), preferred_contact: fd.get('pref'), contact_consent: true
+  });
+  if (error) { msg.textContent = dbError(error); btn.disabled = false; btn.textContent = 'Send enquiry'; return; }
+  form.innerHTML = sentHTML('Enquiry sent', `${esc(p.agent_name || 'The agent')} can now see your message and will reply on ${prefLabel(fd.get('pref'))}. Keep your phone nearby.`);
+}
+const prefLabel = v => ({ whatsapp: 'WhatsApp', email: 'email', phone: 'a phone call' }[v] || 'your chosen channel');
+const sentHTML = (title, text) => `<div class="sent">${icon('check')}<h3>${title}</h3><p class="muted">${text}</p><p class="small muted">Until you have seen the property, do not send money to anyone.</p></div>`;
+
+function nightsBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+function updateBookingTotal(form) {
+  const p = findProp(form.dataset.id); if (!p) return;
+  const a = form.elements.checkin.value, b = form.elements.checkout.value;
+  if (a) form.elements.checkout.min = addDays(a, 1);
+  const n = a && b ? nightsBetween(a, b) : 0;
+  $('[data-total]', form).textContent = n > 0 ? `${money(n * p.nightly_price)} (${n} night${n > 1 ? 's' : ''})` : money(0);
+}
+async function submitBooking(form) {
+  const p = findProp(form.dataset.id), fd = new FormData(form), msg = $('.form-msg', form), btn = $('button.btn', form);
+  msg.textContent = '';
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const a = fd.get('checkin'), b = fd.get('checkout'), n = nightsBetween(a, b);
+  if (n < (p.min_nights || 1)) { msg.textContent = `This stay needs at least ${p.min_nights || 1} night(s).`; return; }
+  if (!isFree(p.id, a, b)) { msg.textContent = 'Some of those nights are already taken. Choose different dates.'; return; }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const { error } = await db.from('booking_requests').insert({
+    property_id: p.id, agent_id: p.agent_id, guest_name: fd.get('name'), guest_email: fd.get('email'), guest_phone: fd.get('phone'),
+    check_in: a, check_out: b, guests: Number(fd.get('guests')), message: fd.get('message') || null,
+    total_quote: n * Number(p.nightly_price), preferred_contact: fd.get('pref'), contact_consent: true
+  });
+  if (error) { msg.textContent = dbError(error); btn.disabled = false; btn.textContent = 'Send booking request'; return; }
+  form.innerHTML = sentHTML('Request sent', `${esc(p.agent_name || 'The host')} will confirm the dates with you on ${prefLabel(fd.get('pref'))}. Estimated total: ${money(n * p.nightly_price)}.`);
+}
+
+async function submitReview(form) {
+  const p = findProp(form.dataset.id), fd = new FormData(form), msg = $('.form-msg', form), btn = $('button.btn', form);
+  msg.textContent = ''; msg.classList.remove('ok');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  btn.disabled = true; btn.textContent = 'Posting…';
+  const { data, error } = await db.functions.invoke('submit-review', { body: {
+    property_id: p.id, reviewer_name: fd.get('name'), reviewer_email: fd.get('email'), rating: Number(fd.get('rating')),
+    title: fd.get('title'), body: fd.get('body'), website: fd.get('website')
+  } });
+  if (error || (data && data.error)) { msg.textContent = await fnError(error, data); btn.disabled = false; btn.textContent = 'Post review'; return; }
+  const { data: fresh } = await db.from('property_reviews').select(REVIEW_COLS).eq('property_id', p.id).order('created_at', { ascending: false });
+  p.property_reviews = fresh || [];
+  const section = $('#reviews');
+  if (section) section.outerHTML = reviewsHTML(p);
+  toast('Review posted. Thank you.', 'ok');
+  render();
+}
+
+async function submitReport(form) {
+  const p = findProp(form.dataset.id), fd = new FormData(form), msg = $('.form-msg', form), btn = $('button.btn', form);
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  btn.disabled = true;
+  const { error } = await db.from('content_reports').insert({
+    property_id: p.id, agent_id: p.agent_id, reporter_name: fd.get('name'), reporter_email: fd.get('email'), category: fd.get('category'), details: fd.get('details')
+  });
+  if (error) { msg.textContent = dbError(error); btn.disabled = false; return; }
+  form.innerHTML = sentHTML('Report received', 'The Nestify team will look into this listing. Thank you for helping keep Nestify trustworthy.');
+}
+
+function reportHTML(p) {
+  return `<div class="pad"><button class="btn-link" data-act="open" data-id="${esc(p.id)}">Back to the listing</button>
+    <h2 class="dlg-title" style="margin-top:.8rem">Report this listing</h2><p class="muted">${esc(p.title)}</p>
+    <form class="dlg-form" data-form="report" data-id="${esc(p.id)}" novalidate>
+      <label class="fld"><span>What is wrong?</span><select name="category" required>${REPORT_REASONS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>
+      <label class="fld"><span>Details</span><textarea name="details" required minlength="20" maxlength="2000" placeholder="Tell us what you found. At least 20 characters."></textarea></label>
+      <div class="row2"><label class="fld"><span>Your name</span><input name="name" required minlength="2"/></label><label class="fld"><span>Your email</span><input name="email" type="email" required/></label></div>
+      <button class="btn">Send report</button><p class="form-msg" role="alert"></p></form></div>`;
+}
+
+function briefHTML() {
+  return `<div class="pad"><h2 class="dlg-title">Tell us what you need</h2><p class="muted">We email your brief to the Nestify team. They share it with agents who may have a match.</p>
+    <form class="dlg-form" data-form="brief" novalidate>
+      <div class="row2"><label class="fld"><span>Your name</span><input name="name" required/></label><label class="fld"><span>WhatsApp or email</span><input name="contact" required/></label></div>
+      <div class="row2"><label class="fld"><span>Looking for</span><select name="kind"><option>A rental</option><option>A short stay</option><option>A home to buy</option></select></label>
+        <label class="fld"><span>County</span><select name="county">${COUNTIES.map(c => `<option>${esc(c)}</option>`).join('')}</select></label></div>
+      <label class="fld"><span>Budget</span><input name="budget" placeholder="For example, KSh 80,000 a month"/></label>
+      <label class="fld"><span>Must-haves</span><textarea name="needs" required minlength="10" placeholder="Bedrooms, area, move-in date, pets, parking…"></textarea></label>
+      <button class="btn">Email my brief</button></form></div>`;
+}
+function submitBrief(form) {
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const fd = Object.fromEntries(new FormData(form));
+  const body = `Name: ${fd.name}\nContact: ${fd.contact}\nLooking for: ${fd.kind}\nCounty: ${fd.county}\nBudget: ${fd.budget || 'not given'}\n\nMust-haves:\n${fd.needs}`;
+  location.href = mailLink(S.support.email, 'Property brief from Nestify', body);
+  form.innerHTML = sentHTML('Your email is ready', 'Press send in your email app to share the brief with Nestify.');
+}
+
+/* ---------- Saved, compare, recent, share, lightbox ---------- */
+function toggleSet(set, key, id) { id = String(id); set.has(id) ? set.delete(id) : set.add(id); writeLS(key, [...set]); }
+function openSaved() {
+  const items = allProps().filter(p => S.saved.has(String(p.id)));
+  openModal(`<div class="pad"><h2 class="dlg-title">Saved properties</h2>${items.length ? items.map(p => `<div class="saved-row"><div><b>${esc(p.title)}</b><br/><span class="muted small">${esc(p.locality)}, ${esc(p.county)}, ${money(priceOf(p))}</span></div><div><button class="btn btn-sm" data-act="open" data-id="${esc(p.id)}">View</button> <button class="btn btn-ghost btn-sm" data-act="save" data-id="${esc(p.id)}" data-reopen="saved">Remove</button></div></div>`).join('') : '<p class="muted">Tap the heart on any listing to keep it here. Saved properties stay on this device.</p>'}</div>`, true);
+}
+function renderCompareBar() {
+  S.compare = new Set([...S.compare].filter(id => !allProps().length || findProp(id)));
+  const bar = $('#compareBar');
+  bar.classList.toggle('hidden', !S.compare.size);
+  $('#compareCount').textContent = `${S.compare.size} selected`;
+  $('#compareThumbs').innerHTML = [...S.compare].map(id => { const p = findProp(id); return p ? `<img src="${esc(cover(p))}" alt="${esc(p.title)}"/>` : ''; }).join('');
+}
+function openCompare() {
+  const items = [...S.compare].map(findProp).filter(Boolean);
+  if (items.length < 2) return toast('Pick at least two properties to compare.');
+  const row = (label, get) => `<div class="compare-row"><b>${label}</b>${items.map(p => `<span>${get(p)}</span>`).join('')}</div>`;
+  openModal(`<div class="pad"><h2 class="dlg-title">Compare properties</h2><div class="compare-table" style="--cols:${items.length}">
+    <div class="compare-row"><b></b>${items.map(p => `<span>${cover(p) ? `<img src="${esc(cover(p))}" alt=""/>` : ''}<strong>${esc(p.title)}</strong></span>`).join('')}</div>
+    ${row('Price', p => esc(money(priceOf(p))) + (p.kind === 'stay' ? ' a night' : ' a month'))}
+    ${row('Place', p => esc(p.locality + ', ' + p.county))}
+    ${row('Space', p => `${p.bedrooms} bed, ${p.bathrooms} bath${p.size_sqm ? ', ' + p.size_sqm + ' m²' : ''}`)}
+    ${row('Type', p => esc(p.property_type))}
+    ${row('Offers', p => esc((p.amenities || []).slice(0, 6).join(', ') || 'Not listed'))}
+    ${row('Listing', p => p.is_demo ? 'Sample' : 'Live, ' + esc(p.agent_name || 'agent'))}
+  </div></div>`);
+}
+function renderRecent() {
+  const items = S.recent.map(findProp).filter(Boolean);
+  $('#recent').classList.toggle('hidden', !items.length);
+  $('#recentRow').innerHTML = items.map(p => `<button class="recent-item" data-act="open" data-id="${esc(p.id)}">${cover(p) ? `<img src="${esc(cover(p))}" alt=""/>` : '<span></span>'}<span><b>${esc(p.title)}</b><small>${esc(p.locality)}, ${esc(money(priceOf(p)))}</small></span></button>`).join('');
+}
+async function shareProperty(id) {
+  const p = findProp(id); if (!p) return;
+  const url = new URL(location.origin + location.pathname); url.searchParams.set('property', p.id);
+  try {
+    if (navigator.share) await navigator.share({ title: p.title, text: `${p.title} on Nestify`, url: url.href });
+    else { await navigator.clipboard.writeText(url.href); toast('Link copied'); }
+  } catch (e) { if (e.name !== 'AbortError') toast('Sharing is not available here.', 'err'); }
+}
+function openLightbox(id, i = 0) {
+  const p = findProp(id), imgs = images(p || {});
+  if (!p || !imgs.length) return;
+  const idx = (i + imgs.length) % imgs.length, m = imgs[idx], box = $('#lightbox');
+  $('#lightboxBody').innerHTML = `<div class="lightbox"><div class="lb-top"><span>${idx + 1} of ${imgs.length}, ${esc(p.title)}</span><button class="icon-btn" data-act="close" aria-label="Close photos">${icon('x')}</button></div>
+    <div class="lb-stage"><button class="icon-btn" data-act="lightbox" data-id="${esc(p.id)}" data-i="${idx - 1}" aria-label="Previous photo">${icon('left')}</button><img class="main" src="${esc(m.public_url)}" alt="${esc(m.alt_text || p.title)}"/><button class="icon-btn" data-act="lightbox" data-id="${esc(p.id)}" data-i="${idx + 1}" aria-label="Next photo">${icon('right')}</button></div>
+    <div class="lb-bottom"><span class="small">${esc(m.alt_text || '')}</span></div></div>`;
+  box.dataset.pid = p.id; box.dataset.i = idx;
+  if (!box.open) box.showModal();
+}
+
+/* ---------- Planner ---------- */
+function updatePlanner() {
+  const value = Number($('#pv').value), dep = Number($('#pd').value), rate = Number($('#pr').value) / 100 / 12, months = Math.max(1, Number($('#pt').value)) * 12;
+  const loan = value * (1 - dep / 100);
+  const monthly = rate ? loan * (rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1) : loan / months;
+  $('#pvOut').textContent = money(value); $('#pdOut').textContent = dep + '%';
+  $('#pMonthly').textContent = money(Math.round(monthly)); $('#pLoan').textContent = money(Math.round(loan)); $('#pCash').textContent = money(Math.round(value - loan));
+}
+
+/* ---------- Events ---------- */
+const ACT = {
+  menu(el) { const n = $('#mobileNav'); const open = n.classList.toggle('open'); el.setAttribute('aria-expanded', String(open)); },
+  mode(el) { setMode(el.dataset.mode); $('#mobileNav').classList.remove('open'); if (el.dataset.scroll) $('#listings').scrollIntoView({ behavior: 'smooth' }); },
+  view(el) { S.view = el.dataset.v; $$('[data-act=view]').forEach(b => b.setAttribute('aria-pressed', String(b === el))); render(); },
+  clear() { S.f = { q: '', county: '', type: '', budget: '', beds: '', guests: '', checkin: '', checkout: '', amenities: new Set() }; S.limit = 9; syncInputs(); render(); },
+  more() { S.limit += 9; render(); },
+  reload() { loadProperties(); },
+  open(el) { openProperty(el.dataset.id); },
+  save(el) {
+    toggleSet(S.saved, 'nestify_saved', el.dataset.id); render();
+    if (el.dataset.reopen === 'saved') openSaved();
+    else if (el.closest('#modal')) openProperty(el.dataset.id);
+    toast(S.saved.has(String(el.dataset.id)) ? 'Saved on this device' : 'Removed from saved');
+  },
+  compare(el) {
+    const id = String(el.dataset.id);
+    if (!S.compare.has(id) && S.compare.size >= 3) return toast('You can compare up to three properties.');
+    toggleSet(S.compare, 'nestify_compare', id); renderCompareBar(); render();
+  },
+  'compare-open': openCompare,
+  'compare-clear'() { S.compare.clear(); writeLS('nestify_compare', []); renderCompareBar(); render(); },
+  saved: openSaved,
+  'clear-recent'() { S.recent = []; writeLS('nestify_recent', []); renderRecent(); },
+  share(el) { shareProperty(el.dataset.id); },
+  report(el) { const p = findProp(el.dataset.id); if (p) openModal(reportHTML(p), true); },
+  brief() { openModal(briefHTML(), true); },
+  'review-toggle'(el) { const f = $('.review-form'); f.classList.toggle('hidden'); if (!f.classList.contains('hidden')) $('input[name=name]', f).focus(); },
+  lightbox(el) { openLightbox(el.dataset.id, Number(el.dataset.i)); },
+  close(el) { const d = el.closest('dialog'); if (d) d.close(); }
+};
+const FORMS = { enquiry: submitEnquiry, booking: submitBooking, review: submitReview, report: submitReport, brief: submitBrief,
+  finder() {
+    S.mode = $('#hMode').value; S.f.county = $('#hCounty').value; S.f.budget = $('#hBudget').value; S.limit = 9;
+    fillBudgets(); $('#hBudget').value = S.f.budget; syncInputs(); render();
+    $('#listings').scrollIntoView({ behavior: 'smooth' });
+  } };
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || !ACT[el.dataset.act]) return;
+  if (el.tagName === 'A' && el.dataset.act === 'open') e.preventDefault();
+  ACT[el.dataset.act](el, e);
+});
+document.addEventListener('submit', e => {
+  const f = e.target.closest('form[data-form]');
+  if (!f || !FORMS[f.dataset.form]) return;
+  e.preventDefault(); FORMS[f.dataset.form](f);
+});
+document.addEventListener('input', e => {
+  const f = e.target.closest('form[data-form=booking]');
+  if (f) updateBookingTotal(f);
+});
+$('#modal').addEventListener('click', e => { if (e.target === $('#modal')) closeModal(); });
+$('#modal').addEventListener('close', () => {
+  const url = new URL(location.href); url.searchParams.delete('property'); history.replaceState(null, '', url);
+  document.title = 'Nestify | Homes and stays in Kenya, straight from the agent';
+  if (S.lastFocus && S.lastFocus.focus) S.lastFocus.focus();
+});
+$('#lightbox').addEventListener('click', e => { if (e.target === $('#lightbox')) $('#lightbox').close(); });
+$('#lightbox').addEventListener('keydown', e => {
+  const box = $('#lightbox');
+  if (e.key === 'ArrowRight') openLightbox(box.dataset.pid, Number(box.dataset.i) + 1);
+  if (e.key === 'ArrowLeft') openLightbox(box.dataset.pid, Number(box.dataset.i) - 1);
+});
+
+/* ---------- Init ---------- */
+function init() {
+  const countyOpts = COUNTIES.map(c => `<option>${esc(c)}</option>`).join('');
+  $('#fCounty').innerHTML = '<option value="">All counties</option>' + countyOpts;
+  $('#hCounty').innerHTML = '<option value="">any county</option>' + countyOpts;
+  $('#fType').innerHTML = '<option value="">Any type</option>' + PROPERTY_TYPES.map(t => `<option>${esc(t)}</option>`).join('');
+  $('#amenityChips').innerHTML = CHIP_AMENITIES.map(a => `<button type="button" class="chip" data-a="${esc(a)}" aria-pressed="false">${esc(a)}</button>`).join('');
+  $('#amenityChips').addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    S.f.amenities.has(c.dataset.a) ? S.f.amenities.delete(c.dataset.a) : S.f.amenities.add(c.dataset.a);
+    c.setAttribute('aria-pressed', String(S.f.amenities.has(c.dataset.a))); S.limit = 9; render();
+  });
+  const today = new Date().toISOString().slice(0, 10);
+  $('#fIn').min = today; $('#fOut').min = addDays(today, 1);
+  fillBudgets();
+  $('#hMode').addEventListener('change', e => { S.mode = e.target.value; S.f.budget = ''; fillBudgets(); });
+  $('#sortSel').addEventListener('change', e => { S.sort = e.target.value; render(); });
+  $('#filters').addEventListener('input', debounce(readFilters, 150));
+  $('#filters').addEventListener('change', readFilters);
+  $('#planner-form').addEventListener('input', updatePlanner);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#mobileNav').classList.remove('open'); });
+  updatePlanner(); syncInputs();
+  loadSettings();
+  loadProperties();
+}
+init();
