@@ -4,21 +4,21 @@ Project URL: `https://bpowsaqvxfsvbcdkjcbp.supabase.co` (already set in `config.
 
 ## 1. Database
 
-Apply `supabase/migrations/20261016000000_open_reviews_privacy_payments.sql` to your Supabase project
-(SQL Editor → paste → Run, or `supabase db push`). It:
+Run these in order in Supabase → SQL Editor (each is safe to run twice):
 
-- removes review invitation tokens, so **anyone can review** a live listing (through the `submit-review` function);
-- locks down columns anon/agents should not read or write (profile admin notes, review hashes, enquiry data);
-- adds the WhatsApp/email/phone contact flow notifications;
-- sets agreement version `2026-10-15` and rewrites `activate_subscription_payment` for Daraja.
+1. `supabase/migrations/20261016000000_open_reviews_privacy_payments.sql` (open reviews, privacy, contact flow)
+2. `supabase/migrations/20261017000000_admin_console_and_fixes.sql` (completes anything the first file missed, and adds the admin console functions). It runs as one transaction, so it either applies fully or shows an error and changes nothing.
 
 Do not run `supabase-schema.sql` on a project that already has data.
 
-First admin (optional, for moderation in the Supabase Table Editor):
+### Super admin
+Make your own account an admin (sign up on `agent.html` first), then open `admin.html`:
 
 ```sql
 update public.profiles set role='admin', verification_status='verified' where email='you@example.com';
 ```
+
+The admin console lets you verify, reject, suspend and message agents, grant or end plans, suspend or remove listings, handle reports, hide reviews, view all payments, edit the support contact and see an audit log of every change. You can promote other admins from an agent's Manage panel.
 
 In **Authentication → URL Configuration** add your deployed site URL (and `http://localhost:8000`).
 

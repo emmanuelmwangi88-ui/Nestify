@@ -6,6 +6,7 @@ A static front end with a production-ready Supabase schema for accountable Kenya
 
 - `index.html` — public rentals and short stays
 - `agent.html` — agent registration, login and dashboard
+- `admin.html` — super-admin console (agents, listings, reports, reviews, payments, settings, audit log)
 - `SETUP.md` — Supabase and Google Maps configuration
 - `supabase/migrations/` — current database changes (apply to your project); `supabase-schema.sql` is a superseded draft
 - `config.js` — browser-safe public configuration
