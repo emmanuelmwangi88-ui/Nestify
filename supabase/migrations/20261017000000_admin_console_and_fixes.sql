@@ -106,9 +106,16 @@ end $$;
 revoke execute on function public.activate_subscription_payment(text, integer, text, text, numeric, text, jsonb) from public, anon, authenticated;
 grant execute on function public.activate_subscription_payment(text, integer, text, text, numeric, text, jsonb) to service_role;
 
--- A5. Trigger functions are never callable from the API.
-revoke execute on function public.review_guard(), public.notify_review(), public.guard_blocked_dates(), public.stamp_agreement()
-  from public, anon, authenticated;
+-- A5. Trigger functions are never callable from the API (only the ones that exist on this project).
+do $$
+declare f text;
+begin
+  foreach f in array array['notify_review', 'guard_blocked_dates', 'stamp_agreement', 'stamp_review_reply', 'notify_agent_request'] loop
+    if exists (select 1 from pg_proc where pronamespace = 'public'::regnamespace and proname = f and pronargs = 0) then
+      execute format('revoke execute on function public.%I() from public, anon, authenticated', f);
+    end if;
+  end loop;
+end $$;
 
 -- ============================================================================
 -- B. Admin console. Every function checks is_admin(auth.uid()) itself.
