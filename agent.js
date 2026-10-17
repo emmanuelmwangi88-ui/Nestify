@@ -62,14 +62,16 @@ function closeDlg() { const d = $('#dlg'); if (d.open) d.close(); S.pay = null; 
 /* ---------- Boot and auth ---------- */
 async function boot() {
   if (!LIVE) { hideBoot(); $('#authView').classList.remove('hidden'); $('#configWarn').classList.remove('hidden'); return; }
-  db.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'PASSWORD_RECOVERY') { S.recovery = true; showAuthView(); showPane('reset'); return; }
-    if (event === 'SIGNED_OUT') { S.user = null; showAuthView(); }
-    if (event === 'SIGNED_IN' && session && !S.user && !S.recovery) { S.user = session.user; await enterApp(); }
+  // Never await Supabase calls inside this callback: the auth client holds a lock while it runs
+  // and a query made from here would wait for that lock forever (a blank, endless "loading" page).
+  db.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') { S.recovery = true; setTimeout(() => { showAuthView(); showPane('reset'); }, 0); return; }
+    if (event === 'SIGNED_OUT') { S.user = null; setTimeout(showAuthView, 0); return; }
+    if (event === 'SIGNED_IN' && session && !S.user && !S.recovery) { S.user = session.user; setTimeout(enterApp, 0); }
   });
   const { data } = await db.auth.getSession();
-  if (data.session && !S.recovery) { S.user = data.session.user; await enterApp(); }
-  else if (!S.recovery) showAuthView();
+  if (data.session && !S.recovery && !S.user) { S.user = data.session.user; await enterApp(); }
+  else if (!S.recovery && !S.user) showAuthView();
 }
 function hideBoot() { const b = document.getElementById('boot'); if (b) b.remove(); }
 function showAuthView() { hideBoot(); $('#appView').classList.add('hidden'); $('#authView').classList.remove('hidden'); }
@@ -129,7 +131,8 @@ async function logout() { await db.auth.signOut(); S.user = null; S.profile = nu
 async function loadProfile() {
   let row = null;
   const r = await db.rpc('my_profile');
-  if (!r.error && Array.isArray(r.data) && r.data[0]) row = r.data[0];
+  const first = Array.isArray(r.data) ? r.data[0] : r.data;
+  if (!r.error && first && first.id) row = first;
   if (!row) { // before my_profile() exists: read the own row directly
     const { data } = await db.from('profiles').select('*').eq('id', S.user.id).maybeSingle();
     if (data) row = { ...data, email: data.email || S.user.email };
@@ -153,13 +156,22 @@ async function loadData() {
   if (failed) toast('Some of your data could not be loaded. Pull to refresh or try again.', 'err');
 }
 async function enterApp() {
+  if (S.entering) return; S.entering = true;
   hideBoot();
   $('#authView').classList.add('hidden'); $('#appView').classList.remove('hidden');
   $('#view').innerHTML = '<div class="skeleton" style="min-height:260px"></div>';
-  await loadProfile(); await loadData();
-  const v = (location.hash || '').replace('#', '');
-  S.view = VIEWS[v] ? v : 'overview';
-  render();
+  try {
+    await Promise.race([
+      (async () => { await loadProfile(); await loadData(); })(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 20000))
+    ]);
+    const v = (location.hash || '').replace('#', '');
+    S.view = VIEWS[v] ? v : 'overview';
+    render();
+  } catch (e) {
+    console.error(e);
+    $('#view').innerHTML = `<div class="empty-state"><h3>We could not load your workspace</h3><p>${e.message === 'timeout' ? 'The connection took too long.' : 'Something went wrong while loading your data.'} Check your internet and try again.</p><button class="btn" data-act="retry">Try again</button> <button class="btn btn-ghost" data-act="logout">Sign out</button></div>`;
+  } finally { S.entering = false; }
 }
 
 /* ---------- Shell ---------- */
@@ -183,6 +195,7 @@ function render() {
   const view = $('#view');
   view.innerHTML = ({ overview: vOverview, properties: vProperties, new: vForm, enquiries: () => vInbox('enquiry'), bookings: () => vInbox('booking'), reviews: vReviews, notifications: vNotes, billing: vBilling, profile: vProfile })[S.view]();
   if (S.view === 'new') afterForm();
+  const al = $('#adminLink'); if (al) al.classList.toggle('hidden', S.profile.role !== 'admin');
   $('#sidebar').classList.remove('open');
 }
 function go(view) { S.view = VIEWS[view] ? view : 'overview'; if (location.hash !== '#' + S.view) history.replaceState(null, '', '#' + S.view); render(); window.scrollTo({ top: 0 }); }
@@ -634,6 +647,7 @@ document.addEventListener('click', e => {
   switch (a) {
     case 'auth': showPane(el.dataset.pane); break;
     case 'logout': logout(); break;
+    case 'retry': enterApp(); break;
     case 'side': $('#sidebar').classList.toggle('open'); break;
     case 'closedlg': closeDlg(); break;
     case 'nav': go(el.dataset.view); break;
