@@ -4,7 +4,6 @@ A static front end with a production-ready Supabase schema for accountable Kenya
 
 ## Project structure
 
-<<<<<<< HEAD
 ```
 nestify/
 ├── index.html            Public marketplace (rentals and short stays)
@@ -28,14 +27,6 @@ nestify/
 
 The `.html` pages stay in the project root so their web addresses do not change.
 Configuration for the browser lives in `assets/js/config.js`.
-=======
-- `index.html` — public rentals and short stays
-- `agent.html` — agent registration, login and dashboard
-- `admin.html` — super-admin console (agents, listings, reports, reviews, payments, settings, audit log)
-- `SETUP.md` — Supabase and Google Maps configuration
-- `supabase/migrations/` — current database changes (apply to your project); `supabase-schema.sql` is a superseded draft
-- `config.js` — browser-safe public configuration
->>>>>>> 72035837840c0b0dedb3fb3785dcd25687bc852e
 
 ## What works
 

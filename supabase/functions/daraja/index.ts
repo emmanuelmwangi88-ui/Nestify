@@ -23,11 +23,7 @@
 //  - If the callback never arrives, the agent's status polling reconciles with the STK Query API.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-<<<<<<< HEAD
 // Keep in step with current_agreement_version() in supabase/schema.sql and AGREEMENT_VERSION in assets/js/agent.js.
-=======
-// Keep in step with current_agreement_version() in supabase-schema.sql and AGREEMENT_VERSION in agent.js.
->>>>>>> 72035837840c0b0dedb3fb3785dcd25687bc852e
 const AGREEMENT_VERSION = '2026-10-15';
 // Fallback prices. The live prices are set by the super admin in platform_settings (key 'plans').
 const DEFAULT_PLANS: Record<string, { amount: number; limit: number }> = {
