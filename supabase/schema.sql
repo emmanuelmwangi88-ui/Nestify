@@ -28,7 +28,7 @@
 
 create extension if not exists pgcrypto;
 
--- Keep this value in step with AGREEMENT_VERSION in agent.js and
+-- Keep this value in step with AGREEMENT_VERSION in assets/js/agent.js and
 -- supabase/functions/daraja/index.ts.
 create or replace function public.current_agreement_version() returns text
 language sql immutable as $$ select '2026-10-15'::text $$;

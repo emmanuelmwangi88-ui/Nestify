@@ -1,0 +1,74 @@
+/* Legal pages: terms, privacy and the agent agreement. */
+body.legal{background:var(--limewash);color:var(--ink)}
+.legal-hero{background:linear-gradient(160deg,var(--tea-deep),var(--tea));color:#fff;padding:clamp(2rem,6vw,4rem) var(--gutter) clamp(2.2rem,6vw,3.6rem)}
+.legal-hero-in{max-width:66rem;margin:0 auto}
+.legal-hero .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--brass-soft);margin-bottom:.7rem}
+.legal-hero h1{font-family:var(--font-display);font-size:clamp(2rem,5.5vw,3.3rem);line-height:1.06;margin:0 0 .8rem;font-weight:700}
+.legal-hero p{max-width:40rem;margin:0;color:rgba(255,255,255,.86);font-size:1.05rem;line-height:1.6}
+.legal-meta{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
+.legal-meta span{font-size:.82rem;padding:.3rem .75rem;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22)}
+.legal-meta .draft{background:var(--brass-soft);color:#5a3a00;border-color:transparent;font-weight:650}
+.legal-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.4rem}
+.legal-tabs a{padding:.5rem 1rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);color:#fff;text-decoration:none;font-weight:600;font-size:.92rem}
+.legal-tabs a[aria-current="page"],.legal-tabs a:hover{background:#fff;color:var(--tea-deep)}
+
+.legal-wrap{max-width:66rem;margin:0 auto;padding:clamp(1.5rem,4vw,2.8rem) var(--gutter) 3rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:start}
+.toc{position:sticky;top:5.2rem;font-size:.92rem}
+.toc h2{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem;font-family:var(--font-body);font-weight:700}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:.1rem;max-height:calc(100vh - 8rem);overflow:auto}
+.toc a{display:block;padding:.38rem .7rem;border-left:2px solid var(--line);color:var(--ink-2);text-decoration:none;line-height:1.35}
+.toc a:hover{color:var(--tea);border-left-color:var(--tea)}
+.toc a.on{color:var(--tea-deep);border-left-color:var(--tea);font-weight:650;background:var(--tea-soft)}
+
+.doc{min-width:0;line-height:1.72}
+.doc section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:clamp(1.1rem,3vw,1.8rem);margin:0 0 1rem;scroll-margin-top:5rem}
+.doc h2{font-family:var(--font-display);font-size:1.4rem;line-height:1.2;margin:0 0 .7rem;display:flex;gap:.7rem;align-items:baseline}
+.doc h2 .n{flex:none;display:inline-grid;place-items:center;min-width:2rem;height:2rem;padding:0 .4rem;border-radius:9px;background:var(--tea-soft);color:var(--tea-deep);font-size:.95rem;font-weight:700}
+.doc h3{font-size:1.02rem;margin:1.2rem 0 .3rem}
+.doc p{margin:.55rem 0;color:var(--ink-2)}
+.doc ul,.doc ol.list{margin:.6rem 0;padding-left:1.25rem;display:grid;gap:.5rem;color:var(--ink-2)}
+.doc li::marker{color:var(--tea)}
+.doc a{color:var(--tea);text-underline-offset:3px}
+.doc b,.doc strong{color:var(--ink)}
+.glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.8rem;margin:0 0 1.1rem}
+.glance div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:1rem 1.1rem}
+.glance b{display:block;font-family:var(--font-display);font-size:1.02rem;margin-bottom:.25rem}
+.glance span{color:var(--ink-2);font-size:.93rem;line-height:1.5}
+.callout{margin:0 0 1rem;padding:1rem 1.2rem;border-radius:var(--r-md);background:var(--brass-soft);border:1px solid #e3cf9d;color:#4d3300;line-height:1.6;font-size:.95rem}
+.callout b{color:#3a2600}
+.callout.safe{background:var(--tea-soft);border-color:#c0d6c8;color:var(--tea-deep)}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.7rem;margin:.8rem 0}
+.plans div{border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;background:var(--limewash)}
+.plans b{display:block;font-family:var(--font-display)}
+.plans span{font-size:.9rem;color:var(--ink-2)}
+.sign{margin-top:1.2rem;padding:1.2rem;border:1px dashed var(--tea);border-radius:var(--r-md);background:var(--surface)}
+.sign h2{font-size:1.1rem;margin-bottom:.4rem}
+.doc-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+.doc-foot{display:flex;flex-wrap:wrap;gap:1rem 1.5rem;justify-content:space-between;max-width:66rem;margin:0 auto;padding:1.4rem var(--gutter) 3rem;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted)}
+.doc-foot a{color:var(--tea)}
+html{scroll-behavior:smooth}
+@media (max-width:860px){
+  .legal-wrap{grid-template-columns:1fr}
+  .toc{position:static;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:.9rem 1rem}
+  .toc ol{max-height:none;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+}
+@media print{
+  .site-header,.toc,.legal-tabs,.doc-actions,.doc-foot a:last-child{display:none!important}
+  body.legal{background:#fff}
+  .legal-hero{background:none;color:#000;padding:0 0 1rem}
+  .legal-hero p,.legal-hero h1{color:#000}
+  .legal-meta span{border-color:#999;background:none;color:#000}
+  .legal-wrap{display:block;padding:0}
+  .doc section{break-inside:avoid;border:0;padding:.4rem 0}
+}
+
+/* Header for the legal pages */
+.site-header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1rem 1.5rem;flex-wrap:wrap;padding:.7rem var(--gutter);background:rgba(251,252,249,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.site-header .brand{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--font-display);font-weight:700;font-size:1.25rem;color:var(--tea-deep);text-decoration:none}
+.site-header .brand-mark{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--tea);color:#fff}
+.site-header .brand-mark svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.site-header .nav{display:flex;gap:.3rem 1.2rem;flex-wrap:wrap;margin-left:auto}
+.site-header .nav a{color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.95rem;padding:.3rem 0}
+.site-header .nav a:hover{color:var(--tea)}
+.site-header .header-actions{display:flex}
+@media (max-width:640px){.site-header .nav{order:3;width:100%;margin-left:0;gap:.2rem 1rem}}

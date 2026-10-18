@@ -1,6 +1,6 @@
 # Nestify setup
 
-Project URL: `https://bpowsaqvxfsvbcdkjcbp.supabase.co` (already set in `config.js`; the anon key there is public by design).
+Project URL: `https://bpowsaqvxfsvbcdkjcbp.supabase.co` (already set in `assets/js/config.js`; the anon key there is public by design).
 
 ## 1. Database
 
@@ -9,7 +9,7 @@ Run these in order in Supabase → SQL Editor (each is safe to run twice):
 1. `supabase/migrations/20261016000000_open_reviews_privacy_payments.sql` (open reviews, privacy, contact flow)
 2. `supabase/migrations/20261017000000_admin_console_and_fixes.sql` (completes anything the first file missed, and adds the admin console functions). It runs as one transaction, so it either applies fully or shows an error and changes nothing.
 
-Do not run `supabase-schema.sql` on a project that already has data.
+Do not run `supabase/schema.sql` on a project that already has data.
 
 ### Super admin
 Make your own account an admin (sign up on `agent.html` first), then open `admin.html`:
@@ -50,7 +50,7 @@ supabase secrets set \
 supabase secrets set REVIEW_SALT=$(openssl rand -hex 24)
 ```
 
-`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided automatically. Never put any of these in `config.js`.
+`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided automatically. Never put any of these in `assets/js/config.js`.
 
 Deploy (JWT verification must be OFF, Safaricom and signed-out reviewers have no Supabase login):
 
@@ -71,7 +71,7 @@ Agent portal → Subscription → pick a plan → accept agreement → pay. In s
 3. Redeploy nothing; secrets apply on the next call. Do a real KSh 2,500 test payment with your own number.
 
 ## 3. Google Maps (optional)
-Create a browser key with Maps JavaScript + Places, restrict by referrer, put it in `googleMapsApiKey` in `config.js`. Without it agents enter coordinates or use their device location.
+Create a browser key with Maps JavaScript + Places, restrict by referrer, put it in `googleMapsApiKey` in `assets/js/config.js`. Without it agents enter coordinates or use their device location.
 
 ## 4. Deploy the site
 Static files. Deploy the folder to Vercel/Netlify/Cloudflare Pages. Local test: `python3 -m http.server 8000`.

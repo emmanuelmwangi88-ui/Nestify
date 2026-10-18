@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400..700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="base.css"/>
-<link rel="stylesheet" href="portal.css"/>
+<link rel="stylesheet" href="assets/css/base.css"/>
+<link rel="stylesheet" href="assets/css/portal.css"/>
 </head>
 <body class="portal">
 <div id="boot" style="position:fixed;inset:0;display:grid;place-content:center;gap:.6rem;text-align:center;padding:1.5rem;font-family:system-ui,sans-serif;color:#0f3b2e;background:#eef1ea;z-index:50">
@@ -25,7 +25,7 @@ window.addEventListener('error', function (e) {
   var m = document.getElementById('bootMsg'); if (!m) return;
   var t = e.target && (e.target.src || e.target.href);
   m.style.color = '#a32d2d';
-  m.textContent = t ? 'This file did not load: ' + t.split('/').pop() + '. Make sure every file from the project (base.css, portal.css, config.js, common.js, agent.js) is uploaded next to agent.html.' : 'Something went wrong: ' + (e.message || 'unknown error');
+  m.textContent = t ? 'This file did not load: ' + t.split('/').pop() + '. Make sure every file from the project (assets/css/base.css, assets/css/portal.css, assets/js/config.js, assets/js/common.js, agent.js) is uploaded next to agent.html.' : 'Something went wrong: ' + (e.message || 'unknown error');
 }, true);
 </script>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -100,8 +100,8 @@ window.addEventListener('error', function (e) {
 <dialog id="dlg" class="modal narrow"><button class="modal-x" data-act="closedlg" aria-label="Close"><i data-icon="x"></i></button><div id="dlgBody" class="pad"></div></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js"></script>
-<script src="common.js"></script>
-<script src="agent.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/agent.js"></script>
 </body>
 </html>

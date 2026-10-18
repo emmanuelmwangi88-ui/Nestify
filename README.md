@@ -2,14 +2,31 @@
 
 A static front end with a production-ready Supabase schema for accountable Kenyan rental and short-stay listings.
 
-## Pages
+## Project structure
 
-- `index.html` — public rentals and short stays
-- `agent.html` — agent registration, login and dashboard
-- `admin.html` — super-admin console (agents, listings, reports, reviews, payments, settings, audit log)
-- `SETUP.md` — Supabase and Google Maps configuration
-- `supabase/migrations/` — current database changes (apply to your project); `supabase-schema.sql` is a superseded draft
-- `config.js` — browser-safe public configuration
+```
+nestify/
+├── index.html            Public marketplace (rentals and short stays)
+├── agent.html            Agent registration, login and workspace
+├── admin.html            Super admin console
+├── legal.html            Terms of use and privacy notice
+├── agreement.html        Agent platform agreement
+├── 404.html              Not-found page
+├── assets/
+│   ├── css/              base, style, portal, admin, doc
+│   └── js/               config, common, demo-data, script, agent, admin, doc
+├── supabase/
+│   ├── migrations/       Database changes, run in filename order
+│   ├── functions/        Edge Functions: daraja (M-Pesa) and submit-review
+│   └── schema.sql        Superseded first draft, kept for reference
+└── docs/
+    ├── SETUP.md          Supabase, M-Pesa and deployment setup
+    ├── AGENT_AGREEMENT.md  Markdown source of the agent agreement
+    └── PLAN.md           Early planning notes (historical)
+```
+
+The `.html` pages stay in the project root so their web addresses do not change.
+Configuration for the browser lives in `assets/js/config.js`.
 
 ## What works
 
@@ -65,7 +82,7 @@ Nestify does not seed fictional property inventory. Public cards are built only 
 
 Preview Mode is clearly labelled. It lets you register, upload small media files, submit a property, and use **Approve for preview** to test the public page in one browser. Preview data is not presented as production-verified information.
 
-See `SETUP.md` before deployment.
+See `docs/SETUP.md` before deployment.
 
 ## Commercial model
 
@@ -78,4 +95,4 @@ See `SETUP.md` before deployment.
 - Plan limits enforced in PostgreSQL RLS, not just the UI
 - Open reviews: anyone can review a live listing (no token), rate-limited and de-duplicated by the `submit-review` function
 
-`AGENT_AGREEMENT.md` must receive Kenyan legal review before production launch.
+`docs/AGENT_AGREEMENT.md` must receive Kenyan legal review before production launch.

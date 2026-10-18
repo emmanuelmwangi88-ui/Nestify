@@ -22,10 +22,7 @@ You are responsible for every statement, price, fee, tax, availability claim, lo
 Listings must fall within Nestify’s accepted premium categories: luxury homes, villas, penthouses, serviced apartments, boutique hotels, resorts, lodges or professionally managed BnBs. Nestify may set category-specific completeness and quality requirements, including minimum media, amenity, location and description standards.
 
 ## 5. Subscription and M-Pesa payment
-Publishing requires an active paid subscription:
-- **Starter:** KSh 2,500 per month, up to 3 active listings;
-- **Growth:** KSh 6,500 per month, up to 12 active listings;
-- **Elite:** KSh 15,000 per month, up to 40 active listings.
+Publishing requires an active paid subscription. Nestify offers three plans (Starter, Growth and Elite), each with a monthly price and a limit on active listings. The current price and limit of each plan are shown on the Subscription page of your workspace, and the price you pay is the price shown when you start the payment. Nestify may change plan prices for future payments.
 
 Payment is initiated through M-Pesa and becomes effective only after confirmed provider callback. Fees are charged monthly and are non-refundable once a listing has been published, except where required by law or expressly approved by Nestify. Failed, reversed or disputed payments may suspend publication. Taxes, if applicable, will be shown or handled according to law.
 
