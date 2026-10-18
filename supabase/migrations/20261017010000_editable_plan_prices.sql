@@ -63,4 +63,5 @@ begin
   values (p_agent, 'Plan activated', 'Nestify activated your ' || p_plan || ' plan for ' || p_months || ' month(s).', 'billing', sid);
 end $$;
 
+notify pgrst, 'reload schema';
 commit;
