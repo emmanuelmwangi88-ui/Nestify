@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin console | Nestify</title>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231b5a45'/%3E%3Cpath d='M16 7 6 15h3v10h14V15h3L16 7Z' fill='%23fff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400..700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/base.css"/>
+<link rel="stylesheet" href="assets/css/portal.css"/>
+<link rel="stylesheet" href="assets/css/admin.css"/>
+</head>
+<body class="portal">
+<div id="boot" style="position:fixed;inset:0;display:grid;place-content:center;gap:.6rem;text-align:center;padding:1.5rem;font-family:system-ui,sans-serif;color:#0f3b2e;background:#eef1ea;z-index:50">
+  <b style="font-size:1.1rem">Loading the admin console…</b>
+  <span id="bootMsg" style="color:#66756d;max-width:30rem">If this message does not disappear, a file did not load. Hard refresh with Ctrl+Shift+R.</span>
+</div>
+<script>
+window.addEventListener('error', function (e) {
+  var m = document.getElementById('bootMsg'); if (!m) return;
+  var t = e.target && (e.target.src || e.target.href);
+  m.style.color = '#a32d2d';
+  m.textContent = t ? 'This file did not load: ' + t.split('/').pop() : 'Something went wrong: ' + (e.message || 'unknown error');
+}, true);
+</script>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="gate" class="gate hidden">
+  <div class="gate-card">
+    <h1 id="gateTitle">Admin console</h1>
+    <p id="gateText" class="muted">Sign in with your admin account.</p>
+    <div id="gateActions"></div>
+  </div>
+</div>
+
+<div id="appView" class="app hidden">
+  <aside id="sidebar" class="sidebar" aria-label="Admin menu">
+    <a class="brand" href="index.html"><span class="brand-mark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M6 10v10h12V10"/></svg></span>Nestify <small class="adm-tag">Admin</small></a>
+    <nav id="nav"></nav>
+    <div class="side-foot"><a href="agent.html">My agent workspace</a><a href="index.html">View the marketplace</a><button data-act="logout">Sign out</button></div>
+  </aside>
+  <main class="workspace" id="main">
+    <header class="ws-top">
+      <div style="display:flex;align-items:center;gap:.8rem"><button class="side-toggle" data-act="side" aria-label="Open menu"><i data-icon="menu"></i></button><h1 id="pageTitle">Overview</h1></div>
+      <div class="who"><span class="avatar" id="initials">AD</span><span><b id="whoName">Admin</b><small class="muted">Super admin</small></span></div>
+    </header>
+    <div id="view"></div>
+    <footer class="ws-foot"><span>© 2026 Nestify Ltd · Every change here is written to the audit log</span><a href="legal.html#terms">Terms</a><a href="legal.html#privacy">Privacy</a></footer>
+  </main>
+</div>
+
+<dialog id="dlg" class="modal narrow"><button class="modal-x" data-act="closedlg" aria-label="Close"><i data-icon="x"></i></button><div id="dlgBody" class="pad"></div></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>
